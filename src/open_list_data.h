@@ -10,33 +10,54 @@
 #include <memory>
 #include <map>
 #include <vector>
+
 using namespace std;
 
-namespace election{
+namespace election {
     typedef int CandidateId;
     typedef int CandidateVoteCount;
     typedef int GroupVoteCount;
-    struct Group{
+    typedef double StrategyPayOff;
+
+    struct Group {
         vector<CandidateId> candidates;
         int group_vote_count;
     };
 
-    struct Strategy{
-        multimap<GroupVoteCount, shared_ptr<Group>> partition_info;
+    struct Strategy {
+        multimap<GroupVoteCount, Group *> partition_info;
+        vector<Strategy> possible_nash_equilibrium;
+        StrategyPayOff max_pay_off;
+
+        Strategy(multimap<GroupVoteCount, Group *> partition_info);
     };
 
-    class Party{
+    struct Profile{
+        Strategy * first_party_strategy;
+        Strategy * second_party_strategy;
+        StrategyPayOff first_party_payoff;
+        StrategyPayOff second_party_payoff;
+
+        Profile(Strategy* first_party_strategy,Strategy* second_party_strategy,StrategyPayOff first_party_payoff,StrategyPayOff second_party_payoff);
+    };
+
+    class Party {
     private:
         int max_partition_num;
-        map<CandidateId,CandidateVoteCount> candidates_info;
+        map<CandidateId, CandidateVoteCount> candidates_info;
         vector<Group> groups;
+
         void InitCombinationInfo(int seats_num);
+
     public:
-        Party(map<CandidateId,CandidateVoteCount> candidate_info, int seats_num);
+        Party(map<CandidateId, CandidateVoteCount> candidate_info, int seats_num);
     };
 
 
-    class Solver{
-        
+    class Solver {
+    private:
+        int seats_num;
+
+        Profile ComputePayOff(Strategy *first_party_strategy, Strategy *second_party_strategy);
     };
 }
