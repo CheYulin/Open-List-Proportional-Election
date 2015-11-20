@@ -3,7 +3,7 @@
 //
 
 #include "open_list_solver.h"
-
+using namespace election;
 
 //Profile Related
 Profile::Profile(Strategy *first_party_strategy, Strategy *second_party_strategy) : first_party_strategy_(
@@ -22,11 +22,11 @@ Profile election::Solver::ComputePayOff(Strategy *first_party_strategy,
     int sum_votes = first_party_->GetSumVotes() + second_party_->GetSumVotes();
     int remaining_seats = seats_num_;
     int quota = sum_votes / seats_num_;
-    priority_queue<Group, vector<Group>, GroupCmp> first_party_groups_info = first_party_strategy->groups_info_;
-    priority_queue<Group, vector<Group>, GroupCmp> second_party_groups_info = second_party_strategy->groups_info_;
+    priority_queue<Group, vector<Group>, GroupComparePartition> first_party_groups_info = first_party_strategy->groups_info_;
+    priority_queue<Group, vector<Group>, GroupComparePartition> second_party_groups_info = second_party_strategy->groups_info_;
     Profile profile(first_party_strategy, second_party_strategy);
 
-    //first round
+    //First Round with Quota
     while (!first_party_groups_info.empty() && first_party_groups_info.top().group_vote_count_ >= quota) {
         first_party_groups_info.pop();
         profile.first_party_payoff_ += 1;
@@ -36,7 +36,7 @@ Profile election::Solver::ComputePayOff(Strategy *first_party_strategy,
         profile.second_party_payoff_ += 1;
     }
 
-    //next several rounds
+    //Next Several Rounds
     while (remaining_seats > 0) {
         int max_vote_first_party = first_party_groups_info.empty() ? 0 : first_party_groups_info.top().group_vote_count_;
         int max_vote_second_party = second_party_groups_info.empty() ? 0

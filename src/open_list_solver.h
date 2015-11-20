@@ -8,12 +8,12 @@
 #endif //SRC_OPEN_LIST_SOLVER_H
 
 #include "open_list_party.h"
-using namespace election;
 
 namespace election{
+    typedef double StrategyPayOff;
 
     struct Strategy {
-        priority_queue<Group, vector<Group>, GroupCmp> groups_info_;
+        priority_queue<Group, vector<Group>, GroupComparePartition> groups_info_;
         vector<Strategy> possible_nash_equilibrium_;
         StrategyPayOff max_pay_off_;
 

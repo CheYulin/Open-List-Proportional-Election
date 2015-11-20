@@ -12,26 +12,29 @@
 #include <vector>
 #include <queue>
 #include <cmath>
-#include "open_list_solver.h"
 
 using namespace std;
-using namespace election;
 namespace election {
     typedef int CandidateId;
     typedef int CandidateVoteCount;
     typedef string CandidateName;
-    typedef double StrategyPayOff;
+
+
 
     struct Group {
         vector<CandidateId> candidates_;
         int group_vote_count_;
     };
 
-    struct GroupCmp {
-        bool operator()(Group group_left, Group group_right) {
-            return group_left.group_vote_count_ < group_right.group_vote_count_;
-        };
+    struct GroupComparePartition {
+        bool operator() (const Group& left_group, const Group& right_group) const;
     };
+
+    struct GroupCompareVote{
+        bool operator() (const Group& left_group, const Group& right_group) const;
+    };
+
+    typedef set<Group, GroupComparePartition> GroupSetComparePartition;
 
     struct CandidateInfo{
         CandidateName candidate_name_;
@@ -42,7 +45,7 @@ namespace election {
     private:
         int sum_votes_;
         map<CandidateId, CandidateInfo> candidates_info_;
-        vector<vector<Group>> groups_info_with_different_size_;
+        vector<GroupSetComparePartition> groups_info_with_different_size_;
 
         void InitGroupsAlternativesInfo();
 

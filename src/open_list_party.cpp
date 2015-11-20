@@ -3,7 +3,33 @@
 //
 
 #include "open_list_party.h"
+using namespace election;
 
+//Group Related
+bool GroupComparePartition::operator()(const Group &left_group, const Group &right_group) const {
+    int left_collection_size =left_group.candidates_.size();
+    int right_collection_size = right_group.candidates_.size();
+    int max_size = left_collection_size < right_collection_size ? left_collection_size : right_collection_size;
+    for (int i = 0; i < max_size; i++) {
+        if (left_group.candidates_[i] < right_group.candidates_[i]) {
+            return true;
+        }
+        else if(left_group.candidates_[i] > right_group.candidates_[i]){
+            return false;
+        }
+    }
+    if(max_size < right_collection_size){
+        return true;
+    }
+    else
+        return false;
+}
+
+bool GroupCompareVote::operator()(const Group &left_group, const Group &right_group) const {
+    return  left_group.group_vote_count_ < right_group.group_vote_count_;
+}
+
+//Party Related
 Party::Party(vector<CandidateInfo> candidates_info, int seats_num) {
     int candidate_id = 1;
     for(CandidateInfo candidate_info : candidates_info){
@@ -25,38 +51,40 @@ int Party::GetSumVotes() {
 
 void Party::InitGroupsAlternativesInfo() {
     int party_size = candidates_info_.size();
-    groups_info_with_different_size_ = vector<vector<Group>>(party_size);
-    vector<Group> first_vector = vector<Group>();
 
-    //initialize group only with 1 person
-    for (auto candidate_info : candidates_info_) {
-        Group group = Group();
-        group.candidates_.push_back(candidate_info.first);
-        group.group_vote_count_ = candidate_info.second.candidate_vote_count_;
-        first_vector.push_back(group);
+    //First Initialize First Layer Groups with Size One
+    groups_info_with_different_size_ = vector<GroupSetComparePartition>();
+    GroupSetComparePartition first_groups_with_size_one = GroupSetComparePartition();
+    vector<Group> first_groups_with_size_one_info = vector<Group>();
+    for (auto pair : candidates_info_) {
+        Group data = Group();
+        data.candidates_.push_back(pair.first);
+        data.group_vote_count_ = pair.second.candidate_vote_count_;
+        first_groups_with_size_one.insert(data);
+        first_groups_with_size_one_info.push_back(data);
     }
-    groups_info_with_different_size_.push_back(first_vector);
+    groups_info_with_different_size_.push_back(first_groups_with_size_one);
 
-    //initialize latter groups with size increasing
-    vector<Group> former_groups_with_same_size = first_vector;
-    vector<Group> latter_groups_with_same_size = vector<Group>();
+    //Next Deal with Groups with Size more than One
+    GroupSetComparePartition former_groups_with_same_size = first_groups_with_size_one;
+    GroupSetComparePartition latter_groups_with_same_size = GroupSetComparePartition();
+    int max_value = first_groups_with_size_one_info[first_groups_with_size_one_info.size() - 1].candidates_[0];
     for (int i = 1; i < party_size; i++) {
         for (Group former_data: former_groups_with_same_size) {
             int last_value = former_data.candidates_[former_data.candidates_.size() - 1];
-            int max_value = first_vector[first_vector.size() - 1].candidates_[0];
             for (int j = last_value + 1; j <= max_value; j++) {
                 Group new_data = former_data;
                 new_data.candidates_.push_back(j);
-                new_data.group_vote_count_ += first_vector[j-1].group_vote_count_;
-                latter_groups_with_same_size.push_back(new_data);
+                new_data.group_vote_count_ += first_groups_with_size_one_info[j - 1].group_vote_count_;
+                latter_groups_with_same_size.insert(new_data);
             }
         }
         groups_info_with_different_size_.push_back(latter_groups_with_same_size);
         former_groups_with_same_size = latter_groups_with_same_size;
-        latter_groups_with_same_size = vector<Group>();
+        latter_groups_with_same_size = GroupSetComparePartition();
     }
 
-
 }
+
 
 
