@@ -34,7 +34,7 @@ namespace election {
         bool operator() (const Group& left_group, const Group& right_group) const;
     };
 
-    typedef set<Group, GroupComparePartition> GroupSetComparePartition;
+    typedef set<Group, GroupComparePartition> ComparePartitionGroupSet;
 
     struct CandidateInfo{
         CandidateName candidate_name_;
@@ -45,7 +45,7 @@ namespace election {
     private:
         int sum_votes_;
         map<CandidateId, CandidateInfo> candidates_info_;
-        vector<GroupSetComparePartition> groups_info_with_different_size_;
+        vector<ComparePartitionGroupSet> groups_info_with_different_size_;
 
         void InitGroupsAlternativesInfo();
 

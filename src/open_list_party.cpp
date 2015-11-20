@@ -53,8 +53,8 @@ void Party::InitGroupsAlternativesInfo() {
     int party_size = candidates_info_.size();
 
     //First Initialize First Layer Groups with Size One
-    groups_info_with_different_size_ = vector<GroupSetComparePartition>();
-    GroupSetComparePartition first_groups_with_size_one = GroupSetComparePartition();
+    groups_info_with_different_size_ = vector<ComparePartitionGroupSet>();
+    ComparePartitionGroupSet first_groups_with_size_one = ComparePartitionGroupSet();
     vector<Group> first_groups_with_size_one_info = vector<Group>();
     for (auto pair : candidates_info_) {
         Group data = Group();
@@ -66,8 +66,8 @@ void Party::InitGroupsAlternativesInfo() {
     groups_info_with_different_size_.push_back(first_groups_with_size_one);
 
     //Next Deal with Groups with Size more than One
-    GroupSetComparePartition former_groups_with_same_size = first_groups_with_size_one;
-    GroupSetComparePartition latter_groups_with_same_size = GroupSetComparePartition();
+    ComparePartitionGroupSet former_groups_with_same_size = first_groups_with_size_one;
+    ComparePartitionGroupSet latter_groups_with_same_size = ComparePartitionGroupSet();
     int max_value = first_groups_with_size_one_info[first_groups_with_size_one_info.size() - 1].candidates_[0];
     for (int i = 1; i < party_size; i++) {
         for (Group former_data: former_groups_with_same_size) {
@@ -81,7 +81,7 @@ void Party::InitGroupsAlternativesInfo() {
         }
         groups_info_with_different_size_.push_back(latter_groups_with_same_size);
         former_groups_with_same_size = latter_groups_with_same_size;
-        latter_groups_with_same_size = GroupSetComparePartition();
+        latter_groups_with_same_size = ComparePartitionGroupSet();
     }
 
 }
