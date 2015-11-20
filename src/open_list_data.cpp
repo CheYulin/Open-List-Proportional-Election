@@ -8,6 +8,7 @@ using namespace election;
 
 Profile election::Solver::ComputePayOff(Strategy *first_party_strategy,
                                         Strategy *second_party_strategy) {
+    Profile profile(first_party_strategy,second_party_strategy);
     int sum_votes = 0;
     auto *first_party_partition_info = &(first_party_strategy->partition_info);
     auto *second_party_partition_info = &(second_party_strategy->partition_info);
@@ -20,9 +21,27 @@ Profile election::Solver::ComputePayOff(Strategy *first_party_strategy,
 
     int remaining_seats = seats_num;
     int quota = sum_votes / seats_num;
-    multimap<GroupVoteCount, Group *> first_party_remaining_potential = first_party_strategy->partition_info;
+    multimap<GroupVoteCount, Group *> first_party_remaining_groups = first_party_strategy->partition_info;
     multimap<GroupVoteCount, Group *> second_party_remaining_groups = second_party_strategy->partition_info;
 
+    for(auto iter = first_party_remaining_groups.begin(); iter != first_party_remaining_groups.end(); iter++){
+        if(iter->first > quota){
+            profile.first_party_payoff += 1;
+            remaining_seats--;
+        }
+    }
+    for(auto iter = second_party_remaining_groups.begin(); iter != second_party_remaining_groups.end();iter++){
+        if(iter->first > quota){
+            profile.second_party_payoff += 1;
+            remaining_seats--;
+        }
+    }
+
+    while(seats_num > 0){
+        //seats enough to split
+
+        //seats not enough to split
+    }
 
     return nullptr;
 }
@@ -33,10 +52,9 @@ Strategy::Strategy(multimap<GroupVoteCount, Group *> partition_info) : partition
 
 }
 
-Profile::Profile(Strategy *first_party_strategy, Strategy *second_party_strategy, StrategyPayOff first_party_payoff,
-                 StrategyPayOff second_party_payoff) : first_party_strategy(first_party_strategy),
+Profile::Profile(Strategy *first_party_strategy, Strategy *second_party_strategy) : first_party_strategy(first_party_strategy),
                                                        second_party_strategy(second_party_strategy),
-                                                       first_party_payoff(first_party_payoff),
-                                                       second_party_payoff(second_party_payoff) {
+                                                       first_party_payoff(0),
+                                                       second_party_payoff(0) {
 
 }

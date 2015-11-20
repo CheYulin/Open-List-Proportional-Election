@@ -38,14 +38,13 @@ namespace election {
         StrategyPayOff first_party_payoff;
         StrategyPayOff second_party_payoff;
 
-        Profile(Strategy* first_party_strategy,Strategy* second_party_strategy,StrategyPayOff first_party_payoff,StrategyPayOff second_party_payoff);
+        Profile(Strategy* first_party_strategy,Strategy* second_party_strategy);
     };
 
     class Party {
     private:
-        int max_partition_num;
         map<CandidateId, CandidateVoteCount> candidates_info;
-        vector<Group> groups;
+        vector<vector<Group>> groups_combination_info;
 
         void InitCombinationInfo(int seats_num);
 
