@@ -22,6 +22,5 @@ int main() {
 
     delete my_solver;
 
-
     return 0;
 }

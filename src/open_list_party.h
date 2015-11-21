@@ -39,7 +39,6 @@ namespace election {
     };
 
     typedef set<Group, GroupCandidatesCompare> CompareCandidatesGroupSet;
-
     typedef priority_queue<const Group *, vector<const Group *>, GroupVoteCompare> CompareVoteGroupPriorityQueue;
 
     struct Strategy {
@@ -56,8 +55,6 @@ namespace election {
     typedef vector<GroupInPartition> Partition;
     typedef vector<Partition> SameSizePartitions;
     typedef vector<SameSizePartitions> DifferentSizePartitions;
-
-
 
     class Party {
     private:
@@ -79,7 +76,6 @@ namespace election {
 
         void TransformPartitionIntoPriorityQueueGetStrategies(DifferentSizePartitions *different_size_partitions);
 
-
     public:
         Party(vector<CandidateInfo> candidates_info, int seats_num);
 
@@ -98,11 +94,9 @@ namespace election {
             return candidates_info_;
         }
 
-
         const vector<SameSizeStrategies> &getStrategies_with_different_size_() const {
             return strategies_with_different_size_;
         }
     };
-
 
 }
