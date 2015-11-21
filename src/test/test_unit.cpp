@@ -34,13 +34,11 @@ void TestUnit::TestGroupsInit(Solver *solver) {
 }
 
 void TestUnit::TestFindCertainGroup(const Group &to_be_find_group, Party *party) {
-    int size = to_be_find_group.candidates_.size();
-    CompareCandidatesGroupSet::iterator iter = party->getGroups_info_with_different_size_()[size-1].find(to_be_find_group);
+    const Group* group = party->GetExactGroupPointer(to_be_find_group);
     cout<< endl;
-    for(int integer : iter->candidates_){
-        cout << integer << endl;
-    }
-    cout<<iter->group_vote_count_;
+    cout << group->GetCandidatesAsString();
+    cout << endl;
+    cout<<group->group_vote_count_;
 }
 
 void TestUnit::TestSeatNum(Solver *solver) {

@@ -15,7 +15,7 @@ int main() {
     test_unit.TestGroupsInit(my_solver);
 
     Group to_be_test_group;
-    to_be_test_group.candidates_ ={2,3,4};
+    to_be_test_group.candidates_ ={2,4,5};
     test_unit.TestFindCertainGroup(to_be_test_group,my_solver->getFirst_party_());
     delete my_solver;
     return 0;

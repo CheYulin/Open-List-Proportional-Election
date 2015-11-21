@@ -17,6 +17,14 @@ CandidateInfo::CandidateInfo(CandidateName candidate_name, CandidateVoteCount ca
 }
 
 //Group Related
+string Group::GetCandidatesAsString() const{
+    stringstream string_builder;
+    for(CandidateId candidate_id: candidates_){
+        string_builder << candidate_id;
+    }
+    return string_builder.str();
+}
+
 bool GroupCandidatesCompare::operator()(const Group &left_group, const Group &right_group) const {
     int left_collection_size = left_group.candidates_.size();
     int right_collection_size = right_group.candidates_.size();
@@ -96,6 +104,13 @@ void Party::InitGroupsAlternativesInfo() {
         latter_groups_with_same_size = CompareCandidatesGroupSet();
     }
 
+}
+
+
+const Group *Party::GetExactGroupPointer(const Group &to_be_found_group) {
+    int size = to_be_found_group.candidates_.size();
+    CompareCandidatesGroupSet::iterator iter = groups_info_with_different_size_[size - 1].find(to_be_found_group);
+    return  &(*iter);
 }
 
 

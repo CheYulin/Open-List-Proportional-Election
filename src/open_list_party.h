@@ -16,6 +16,7 @@ namespace election {
     struct Group {
         vector<CandidateId> candidates_;
         int group_vote_count_;
+        string GetCandidatesAsString() const;
     };
 
     struct GroupCandidatesCompare {
@@ -49,6 +50,8 @@ namespace election {
         Party(vector<CandidateInfo> candidates_info, int seats_num);
 
         int GetSumVotes();
+
+        const Group * GetExactGroupPointer(const Group &to_be_found_group);
 
         //Auto Generated
         const vector<CompareCandidatesGroupSet> &getGroups_info_with_different_size_() const {
