@@ -1,10 +1,6 @@
-#include <iostream>
-#include <fstream>
-#include <regex>
+
 #include "open_list_solver.h"
 
-using namespace std;
-using namespace election;
 
 vector<CandidateInfo> GetPartyCandidates(string &line) {
     regex split_pattern("\\)|,|\\(");
