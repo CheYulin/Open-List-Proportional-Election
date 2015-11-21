@@ -8,6 +8,7 @@
 #endif //SRC_OPEN_LIST_SOLVER_H
 
 #include "open_list_party.h"
+using namespace election;
 
 namespace election{
     typedef double StrategyPayOff;

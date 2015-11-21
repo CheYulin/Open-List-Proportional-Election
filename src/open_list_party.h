@@ -6,14 +6,8 @@
 
 #endif //SRC_OPEN_LIST_DATA_H
 
-#include <memory>
-#include <set>
-#include <map>
-#include <vector>
-#include <queue>
-#include <cmath>
+#include "open_list_includes.h"
 
-using namespace std;
 namespace election {
     typedef int CandidateId;
     typedef int CandidateVoteCount;
