@@ -8,9 +8,10 @@
 #endif //SRC_OPEN_LIST_SOLVER_H
 
 #include "open_list_party.h"
+
 using namespace election;
 
-namespace election{
+namespace election {
     typedef double StrategyPayOff;
 
     struct Strategy {
@@ -38,9 +39,11 @@ namespace election{
         Profile ComputePayOff(Strategy *first_party_strategy, Strategy *second_party_strategy);
 
     public:
-        Solver(Party* first_party, Party* second_party, int seats_num);
+        Solver(Party *first_party, Party *second_party, int seats_num);
+
         ~Solver();
 
+        //Auto Generated
         Party *getFirst_party_() const {
             return first_party_;
         }

@@ -19,19 +19,21 @@ namespace election {
     };
 
     struct GroupComparePartition {
-        bool operator() (const Group& left_group, const Group& right_group) const;
+        bool operator()(const Group &left_group, const Group &right_group) const;
     };
 
-    struct GroupCompareVote{
-        bool operator() (const Group& left_group, const Group& right_group) const;
+    struct GroupCompareVote {
+        bool operator()(const Group &left_group, const Group &right_group) const;
     };
 
     typedef set<Group, GroupComparePartition> ComparePartitionGroupSet;
 
-    struct CandidateInfo{
+    struct CandidateInfo {
         CandidateName candidate_name_;
         CandidateVoteCount candidate_vote_count_;
+
         CandidateInfo();
+
         CandidateInfo(CandidateName candidate_name, CandidateVoteCount candidate_vote_count);
     };
 
@@ -46,6 +48,9 @@ namespace election {
     public:
         Party(vector<CandidateInfo> candidates_info, int seats_num);
 
+        int GetSumVotes();
+
+        //Auto Generated
         const vector<ComparePartitionGroupSet> &getGroups_info_with_different_size_() const {
             return groups_info_with_different_size_;
         }
@@ -54,9 +59,8 @@ namespace election {
             return candidates_info_;
         }
 
-        int GetSumVotes();
-    };
 
+    };
 
 
 }
