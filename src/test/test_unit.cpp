@@ -48,22 +48,16 @@ void TestUnit::TestSeatNum(Solver *solver) {
 
 void TestUnit::TestStrategiesInit(Party *party) {
     int count =0;
-   cout << endl;
+    cout << endl;
     party->InitStrategies();
     vector<SameSizeStrategies> different_size_strategies = party->getStrategies_with_different_size_();
     for (SameSizeStrategies same_size_strategies : different_size_strategies) {
-        for (Strategy strategy: same_size_strategies) {
-            CompareVoteGroupPriorityQueue compare_vote_group_priority_queue = strategy.groups_info_;
-            stringstream string_builder;
-            while (!compare_vote_group_priority_queue.empty()) {
-                const Group *group = compare_vote_group_priority_queue.top();
-                string_builder << group->GetCandidatesAsString() << "," ;
-                compare_vote_group_priority_queue.pop();
-            }
+        for (int i=0;i<same_size_strategies.size();i++) {
             count++;
-            cout << string_builder.str() << "    ";
+            cout << same_size_strategies[i].PartitionToString() << "    ";
         }
         cout << endl << endl;
-        cout << count << endl;
+
     }
+    cout << count << endl;
 }

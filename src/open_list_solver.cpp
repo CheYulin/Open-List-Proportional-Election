@@ -27,8 +27,8 @@ Profile election::Solver::ComputePayOff(Strategy *first_party_strategy,
     int sum_votes = first_party_->GetSumVotes() + second_party_->GetSumVotes();
     int remaining_seats = seats_num_;
     int quota = sum_votes / seats_num_;
-    CompareVoteGroupPriorityQueue first_party_groups_info = first_party_strategy->groups_info_;
-    CompareVoteGroupPriorityQueue second_party_groups_info = second_party_strategy->groups_info_;
+    CompareVoteGroupPriorityQueue first_party_groups_info = first_party_strategy->groups_combination_info_;
+    CompareVoteGroupPriorityQueue second_party_groups_info = second_party_strategy->groups_combination_info_;
     Profile profile(first_party_strategy, second_party_strategy);
 
     //First Round with Quota

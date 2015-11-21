@@ -13,6 +13,7 @@ namespace election {
     typedef int CandidateVoteCount;
     typedef string CandidateName;
     typedef double StrategyPayOff;
+    class Party;
 
     struct CandidateInfo {
         CandidateName candidate_name_;
@@ -41,12 +42,15 @@ namespace election {
     typedef set<Group, GroupCandidatesCompare> CompareCandidatesGroupSet;
     typedef priority_queue<const Group *, vector<const Group *>, GroupVoteCompare> CompareVoteGroupPriorityQueue;
 
+
     struct Strategy {
-        CompareVoteGroupPriorityQueue groups_info_;
+        CompareVoteGroupPriorityQueue groups_combination_info_;
         vector<Strategy> possible_nash_equilibrium_;
         StrategyPayOff max_pay_off_;
+        Party *party_;
 
-        Strategy();
+        Strategy(Party * party);
+        string PartitionToString();
     };
 
     typedef vector<Strategy> SameSizeStrategies;

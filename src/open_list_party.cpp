@@ -47,7 +47,31 @@ bool GroupVoteCompare::operator()(const Group *left_group, const Group *right_gr
 }
 
 //Strategy Related
-Strategy::Strategy() : max_pay_off_(-1) {
+Strategy::Strategy(Party * party) : max_pay_off_(-1), party_(party) {
+}
+
+string Strategy::PartitionToString() {
+    CompareVoteGroupPriorityQueue priority_queue = groups_combination_info_;
+    CompareCandidatesGroupSet compare_candidate_group_set;
+    stringstream string_builder;
+    string_builder << "{";
+    while(!priority_queue.empty()){
+        compare_candidate_group_set.insert(*priority_queue.top());
+        priority_queue.pop();
+    }
+    for(Group group : compare_candidate_group_set){
+        string_builder << "{";
+        for(int i=0; i<group.candidates_.size();i++){
+            string_builder << party_->getCandidates_info_().at(group.candidates_[i]).candidate_name_;
+            if(i!=group.candidates_.size()-1){
+                string_builder << ",";
+            }
+        }
+        string_builder << "}";
+    }
+    string_builder << "}";
+
+    return string_builder.str();
 }
 
 //Party Related
@@ -141,14 +165,14 @@ void Party::TransformPartitionIntoPriorityQueueGetStrategies(DifferentSizePartit
         SameSizeStrategies same_size_strategies;
         Strategy *strategy;
         for (Partition partition: same_size_partitions) {
-            strategy = new Strategy();
+            strategy = new Strategy(this);
             Group *to_be_find_group;
             for (GroupInPartition group_in_partition : partition) {
                 to_be_find_group = new Group();
                 for (CandidateId candidate_id: group_in_partition) {
                     to_be_find_group->candidates_.push_back(candidate_id);
                 }
-                strategy->groups_info_.push(GetExactGroupPointer(*to_be_find_group));
+                strategy->groups_combination_info_.push(GetExactGroupPointer(*to_be_find_group));
                 delete to_be_find_group;
             }
             same_size_strategies.push_back(*strategy);
@@ -174,7 +198,7 @@ void Party::InitStrategies() {
     first_different_size_partitions->push_back(same_size_partitions);
 
     DifferentSizePartitions *former_different_size_partitions = first_different_size_partitions;
-    DifferentSizePartitions *latter_different_size_partitions;
+    DifferentSizePartitions *latter_different_size_partitions = nullptr;
 
     //Iteration between Different Max Party Size
     int party_size = candidates_info_.size();
