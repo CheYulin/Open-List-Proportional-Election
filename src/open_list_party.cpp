@@ -3,22 +3,33 @@
 //
 
 #include "open_list_party.h"
+
 using namespace election;
+
+//Candidate Related
+CandidateInfo::CandidateInfo() {
+
+}
+
+CandidateInfo::CandidateInfo(CandidateName candidate_name, CandidateVoteCount candidate_vote_count) : candidate_name_(
+        candidate_name), candidate_vote_count_(candidate_vote_count) {
+
+}
 
 //Group Related
 bool GroupComparePartition::operator()(const Group &left_group, const Group &right_group) const {
-    int left_collection_size =left_group.candidates_.size();
+    int left_collection_size = left_group.candidates_.size();
     int right_collection_size = right_group.candidates_.size();
     int max_size = left_collection_size < right_collection_size ? left_collection_size : right_collection_size;
     for (int i = 0; i < max_size; i++) {
         if (left_group.candidates_[i] < right_group.candidates_[i]) {
             return true;
         }
-        else if(left_group.candidates_[i] > right_group.candidates_[i]){
+        else if (left_group.candidates_[i] > right_group.candidates_[i]) {
             return false;
         }
     }
-    if(max_size < right_collection_size){
+    if (max_size < right_collection_size) {
         return true;
     }
     else
@@ -26,14 +37,15 @@ bool GroupComparePartition::operator()(const Group &left_group, const Group &rig
 }
 
 bool GroupCompareVote::operator()(const Group &left_group, const Group &right_group) const {
-    return  left_group.group_vote_count_ < right_group.group_vote_count_;
+    return left_group.group_vote_count_ < right_group.group_vote_count_;
 }
 
 //Party Related
 Party::Party(vector<CandidateInfo> candidates_info, int seats_num) {
     int candidate_id = 1;
-    for(CandidateInfo candidate_info : candidates_info){
-        candidates_info_.insert(make_pair(candidate_id,candidate_info));
+    for (CandidateInfo candidate_info : candidates_info) {
+        candidates_info_.insert(make_pair(candidate_id, candidate_info));
+        candidate_id++;
     }
     InitGroupsAlternativesInfo();
 }

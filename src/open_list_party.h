@@ -19,8 +19,6 @@ namespace election {
     typedef int CandidateVoteCount;
     typedef string CandidateName;
 
-
-
     struct Group {
         vector<CandidateId> candidates_;
         int group_vote_count_;
@@ -39,6 +37,8 @@ namespace election {
     struct CandidateInfo{
         CandidateName candidate_name_;
         CandidateVoteCount candidate_vote_count_;
+        CandidateInfo();
+        CandidateInfo(CandidateName candidate_name, CandidateVoteCount candidate_vote_count);
     };
 
     class Party {
@@ -51,6 +51,15 @@ namespace election {
 
     public:
         Party(vector<CandidateInfo> candidates_info, int seats_num);
+
+        const vector<ComparePartitionGroupSet> &getGroups_info_with_different_size_() const {
+            return groups_info_with_different_size_;
+        }
+
+        const map<CandidateId, CandidateInfo> &getCandidates_info_() const {
+            return candidates_info_;
+        }
+
         int GetSumVotes();
     };
 

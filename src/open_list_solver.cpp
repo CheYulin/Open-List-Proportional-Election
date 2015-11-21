@@ -17,6 +17,11 @@ Solver::Solver(Party *first_party, Party *second_party, int seats_num) :
 
 }
 
+Solver::~Solver() {
+    delete first_party_;
+    delete second_party_;
+}
+
 Profile election::Solver::ComputePayOff(Strategy *first_party_strategy,
                                         Strategy *second_party_strategy) {
     int sum_votes = first_party_->GetSumVotes() + second_party_->GetSumVotes();
@@ -66,3 +71,5 @@ Profile election::Solver::ComputePayOff(Strategy *first_party_strategy,
 
     return profile;
 }
+
+

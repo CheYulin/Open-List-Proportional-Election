@@ -38,5 +38,14 @@ namespace election{
 
     public:
         Solver(Party* first_party, Party* second_party, int seats_num);
+        ~Solver();
+
+        Party *getFirst_party_() const {
+            return first_party_;
+        }
+
+        Party *getSecond_party_() const {
+            return second_party_;
+        }
     };
 }
