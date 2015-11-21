@@ -13,9 +13,9 @@ using namespace election;
 
 namespace election {
     typedef double StrategyPayOff;
-
+    typedef priority_queue<Group, vector<Group>, GroupCompareVote> CompareVoteGroupPriorityQueue;
     struct Strategy {
-        priority_queue<Group, vector<Group>, GroupComparePartition> groups_info_;
+        CompareVoteGroupPriorityQueue groups_info_;
         vector<Strategy> possible_nash_equilibrium_;
         StrategyPayOff max_pay_off_;
 
@@ -50,6 +50,11 @@ namespace election {
 
         Party *getSecond_party_() const {
             return second_party_;
+        }
+
+
+        int getSeats_num_() const {
+            return seats_num_;
         }
     };
 }
