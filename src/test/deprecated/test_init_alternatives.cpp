@@ -2,6 +2,7 @@
 // Created by yche on 11/20/2015.
 //
 
+#include <iomanip>
 #include "../../open_list_includes.h"
 
 struct Group {
@@ -179,8 +180,11 @@ void TestCOnstructCOmbinationWithSet(){
     }
 }
 int main() {
-
     vector<Group> * my_vector = new vector<Group>(10);
     delete my_vector;
+
+    std::ios_base::sync_with_stdio(false);
+    cout << setiosflags(ios::fixed)<<setprecision(2) << (double)100 << "~~~~"<<100.324324<<endl;
+    cout <<"haha" <<43243.432432 << endl;
 }
 
