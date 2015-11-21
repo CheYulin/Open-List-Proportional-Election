@@ -18,15 +18,15 @@ namespace election {
         int group_vote_count_;
     };
 
-    struct GroupComparePartition {
+    struct GroupCandidatesCompare {
         bool operator()(const Group &left_group, const Group &right_group) const;
     };
 
-    struct GroupCompareVote {
+    struct GroupVoteCompare {
         bool operator()(const Group &left_group, const Group &right_group) const;
     };
 
-    typedef set<Group, GroupComparePartition> ComparePartitionGroupSet;
+    typedef set<Group, GroupCandidatesCompare> CompareCandidatesGroupSet;
 
     struct CandidateInfo {
         CandidateName candidate_name_;
@@ -41,7 +41,7 @@ namespace election {
     private:
         int sum_votes_;
         map<CandidateId, CandidateInfo> candidates_info_;
-        vector<ComparePartitionGroupSet> groups_info_with_different_size_;
+        vector<CompareCandidatesGroupSet> groups_info_with_different_size_;
 
         void InitGroupsAlternativesInfo();
 
@@ -51,7 +51,7 @@ namespace election {
         int GetSumVotes();
 
         //Auto Generated
-        const vector<ComparePartitionGroupSet> &getGroups_info_with_different_size_() const {
+        const vector<CompareCandidatesGroupSet> &getGroups_info_with_different_size_() const {
             return groups_info_with_different_size_;
         }
 

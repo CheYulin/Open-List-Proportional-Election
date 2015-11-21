@@ -15,7 +15,7 @@ void TestUnit::TestCandidatesInfo(Party *party) {
 
 void TestUnit::TestPartitionDetail(Party *party) {
     TestCandidatesInfo(party);
-    for (ComparePartitionGroupSet sets: party->getGroups_info_with_different_size_()) {
+    for (CompareCandidatesGroupSet sets: party->getGroups_info_with_different_size_()) {
         for (Group data: sets) {
             cout << "(";
             for (int integer : data.candidates_) {
@@ -35,7 +35,7 @@ void TestUnit::TestGroupsInit(Solver *solver) {
 
 void TestUnit::TestFindCertainGroup(const Group &to_be_find_group, Party *party) {
     int size = to_be_find_group.candidates_.size();
-    ComparePartitionGroupSet::iterator iter = party->getGroups_info_with_different_size_()[size-1].find(to_be_find_group);
+    CompareCandidatesGroupSet::iterator iter = party->getGroups_info_with_different_size_()[size-1].find(to_be_find_group);
     cout<< endl;
     for(int integer : iter->candidates_){
         cout << integer << endl;
