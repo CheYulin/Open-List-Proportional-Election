@@ -1,11 +1,8 @@
 //
 // Created by yche on 11/20/2015.
 //
-#include <iostream>
-#include <sstream>
-#include "../open_list_party.h"
 
-using namespace std;
+#include "../../open_list_includes.h"
 
 struct Group {
     vector<int> candidates_;
@@ -183,7 +180,7 @@ void TestCOnstructCOmbinationWithSet(){
 }
 int main() {
 
-
-
+    vector<Group> * my_vector = new vector<Group>(10);
+    delete my_vector;
 }
 

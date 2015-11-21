@@ -12,14 +12,6 @@
 using namespace election;
 
 namespace election {
-    typedef double StrategyPayOff;
-    typedef priority_queue<Group, vector<Group>, GroupVoteCompare> CompareVoteGroupPriorityQueue;
-
-    struct Strategy {
-        CompareVoteGroupPriorityQueue groups_info_;
-        vector<Strategy> possible_nash_equilibrium_;
-        StrategyPayOff max_pay_off_;
-    };
 
     struct Profile {
         Strategy *first_party_strategy_;

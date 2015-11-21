@@ -17,9 +17,9 @@ CandidateInfo::CandidateInfo(CandidateName candidate_name, CandidateVoteCount ca
 }
 
 //Group Related
-string Group::GetCandidatesAsString() const{
+string Group::GetCandidatesAsString() const {
     stringstream string_builder;
-    for(CandidateId candidate_id: candidates_){
+    for (CandidateId candidate_id: candidates_) {
         string_builder << candidate_id;
     }
     return string_builder.str();
@@ -44,9 +44,16 @@ bool GroupCandidatesCompare::operator()(const Group &left_group, const Group &ri
         return false;
 }
 
-bool GroupVoteCompare::operator()(const Group &left_group, const Group &right_group) const {
-    return left_group.group_vote_count_ < right_group.group_vote_count_;
+bool GroupVoteCompare::operator()(const Group *left_group, const Group *right_group) {
+    return left_group->group_vote_count_ < right_group->group_vote_count_;
 }
+
+
+//Strategy Related
+Strategy::Strategy():max_pay_off_(-1) {
+
+}
+
 
 //Party Related
 Party::Party(vector<CandidateInfo> candidates_info, int seats_num) {
@@ -110,7 +117,92 @@ void Party::InitGroupsAlternativesInfo() {
 const Group *Party::GetExactGroupPointer(const Group &to_be_found_group) {
     int size = to_be_found_group.candidates_.size();
     CompareCandidatesGroupSet::iterator iter = groups_info_with_different_size_[size - 1].find(to_be_found_group);
-    return  &(*iter);
+
+    return &(*iter);
+}
+
+//Party Generate Different Size Partition Related
+
+void Party::AddNewCandidateIdToMakeEqualSizePartition(const Partition &former_partition, const CandidateId &candidate_id,
+                                                      SameSizePartitions *latter_same_size_partition_i) {
+    for (int i = 0; i < former_partition.size(); i++) {
+        Partition new_partition = former_partition;
+        new_partition[i].insert(candidate_id);
+        latter_same_size_partition_i->push_back(new_partition);
+    }
+}
+
+void Party::AddNewCandidateIdToMakeSizePlusOnePartition(const Partition &former_partition, const CandidateId &candidate_id,
+                                                        SameSizePartitions *latter_same_size_partition_i_plus_one) {
+    Partition new_partition = former_partition;
+    GroupInPartition new_group;
+    new_group.insert(candidate_id);
+    new_partition.push_back(new_group);
+    latter_same_size_partition_i_plus_one->push_back(new_partition);
+}
+
+void Party::TransformPartitionIntoPriorityQueueGetStrategies(DifferentSizePartitions *different_size_partitions) {
+    for(SameSizePartitions same_size_partitions: *different_size_partitions){
+        SameSizeStrategies same_size_strategies;
+        Strategy* strategy;
+        for(Partition partition: same_size_partitions){
+            strategy = new Strategy();
+            Group* to_be_find_group;
+            for(GroupInPartition group_in_partition : partition){
+                to_be_find_group = new Group();
+                for(CandidateId candidate_id: group_in_partition){
+                    to_be_find_group->candidates_.push_back(candidate_id);
+                }
+                strategy->groups_info_.push(GetExactGroupPointer(*to_be_find_group));
+                delete to_be_find_group;
+            }
+            same_size_strategies.push_back(*strategy);
+            delete strategy;
+        }
+        strategies_with_different_size_.push_back(same_size_strategies);
+    }
+}
+
+void Party::InitStrategies() {
+    CandidateId candidate_id = 1;
+
+    GroupInPartition group_in_partition;
+    group_in_partition.insert(candidate_id);
+
+    Partition partition;
+    partition.push_back(group_in_partition);
+
+    SameSizePartitions same_size_partitions;
+    same_size_partitions.push_back(partition);
+
+    DifferentSizePartitions *first_different_size_partitions = new DifferentSizePartitions();
+    first_different_size_partitions->push_back(same_size_partitions);
+
+    DifferentSizePartitions *former_different_size_partitions = first_different_size_partitions;
+    DifferentSizePartitions *latter_different_size_partitions;
+
+    //Iteration between Different Max Party Size
+    int party_size = candidates_info_.size();
+    for (int latter_party_size = 2; latter_party_size <= party_size; latter_party_size++) {
+        latter_different_size_partitions = new DifferentSizePartitions(latter_party_size);
+        CandidateId latter_candidate_id = latter_party_size;
+        for (int former_party_partition_possible_size = 1; former_party_partition_possible_size <= latter_party_size - 1; former_party_partition_possible_size++) {
+            SameSizePartitions* former_same_size_partitions = &(*former_different_size_partitions)[former_party_partition_possible_size - 1];
+            SameSizePartitions* latter_same_size_partitions_i = &(*latter_different_size_partitions)[former_party_partition_possible_size - 1];
+            SameSizePartitions* latter_same_size_partitions_i_plus_one = &(*latter_different_size_partitions)[former_party_partition_possible_size];
+            for (Partition former_partition: *former_same_size_partitions) {
+                AddNewCandidateIdToMakeEqualSizePartition(former_partition, latter_candidate_id, latter_same_size_partitions_i);
+                AddNewCandidateIdToMakeSizePlusOnePartition(former_partition, latter_candidate_id, latter_same_size_partitions_i_plus_one);
+            }
+        }
+        delete former_different_size_partitions;
+        former_different_size_partitions = latter_different_size_partitions;
+    }
+
+
+    //Put last Result Into Priority Queue
+    TransformPartitionIntoPriorityQueueGetStrategies(latter_different_size_partitions);
+    delete  latter_different_size_partitions;
 }
 
 

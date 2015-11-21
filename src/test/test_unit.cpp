@@ -34,14 +34,36 @@ void TestUnit::TestGroupsInit(Solver *solver) {
 }
 
 void TestUnit::TestFindCertainGroup(const Group &to_be_find_group, Party *party) {
-    const Group* group = party->GetExactGroupPointer(to_be_find_group);
-    cout<< endl;
+    const Group *group = party->GetExactGroupPointer(to_be_find_group);
+    cout << endl;
     cout << group->GetCandidatesAsString();
     cout << endl;
-    cout<<group->group_vote_count_;
+    cout << group->group_vote_count_;
 }
 
 void TestUnit::TestSeatNum(Solver *solver) {
-    cout <<"seat nums:" << solver->getSeats_num_()<< endl;
+    cout << "seat nums:" << solver->getSeats_num_() << endl;
     cout << endl;
+}
+
+void TestUnit::TestStrategiesInit(Party *party) {
+    int count =0;
+   cout << endl;
+    party->InitStrategies();
+    vector<SameSizeStrategies> different_size_strategies = party->getStrategies_with_different_size_();
+    for (SameSizeStrategies same_size_strategies : different_size_strategies) {
+        for (Strategy strategy: same_size_strategies) {
+            CompareVoteGroupPriorityQueue compare_vote_group_priority_queue = strategy.groups_info_;
+            stringstream string_builder;
+            while (!compare_vote_group_priority_queue.empty()) {
+                const Group *group = compare_vote_group_priority_queue.top();
+                string_builder << group->GetCandidatesAsString() << "," ;
+                compare_vote_group_priority_queue.pop();
+            }
+            count++;
+            cout << string_builder.str() << "    ";
+        }
+        cout << endl << endl;
+        cout << count << endl;
+    }
 }

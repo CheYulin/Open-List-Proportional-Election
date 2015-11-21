@@ -1,11 +1,7 @@
 //
 // Created by cheyulin on 11/19/15.
 //
-#include <iostream>
-#include <map>
-#include <set>
-#include <queue>
-using namespace std;
+#include "../../open_list_includes.h"
 
 struct Pair{
     Pair(int key, int value): key(key), value(value){};

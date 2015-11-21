@@ -32,29 +32,29 @@ Profile election::Solver::ComputePayOff(Strategy *first_party_strategy,
     Profile profile(first_party_strategy, second_party_strategy);
 
     //First Round with Quota
-    while (!first_party_groups_info.empty() && first_party_groups_info.top().group_vote_count_ >= quota) {
+    while (!first_party_groups_info.empty() && first_party_groups_info.top()->group_vote_count_ >= quota) {
         first_party_groups_info.pop();
         profile.first_party_payoff_ += 1;
     }
-    while (!second_party_groups_info.empty() && second_party_groups_info.top().group_vote_count_ >= quota) {
+    while (!second_party_groups_info.empty() && second_party_groups_info.top()->group_vote_count_ >= quota) {
         second_party_groups_info.pop();
         profile.second_party_payoff_ += 1;
     }
 
     //Next Several Rounds
     while (remaining_seats > 0) {
-        int max_vote_first_party = first_party_groups_info.empty() ? 0 : first_party_groups_info.top().group_vote_count_;
+        int max_vote_first_party = first_party_groups_info.empty() ? 0 : first_party_groups_info.top()->group_vote_count_;
         int max_vote_second_party = second_party_groups_info.empty() ? 0
-                                                                     : second_party_groups_info.top().group_vote_count_;
+                                                                     : second_party_groups_info.top()->group_vote_count_;
         int max_vote = max(max_vote_first_party, max_vote_second_party);
 
         int first_party_pop_num = 0;
         int second_party_pop_num = 0;
-        while (!first_party_groups_info.empty() && first_party_groups_info.top().group_vote_count_ == max_vote) {
+        while (!first_party_groups_info.empty() && first_party_groups_info.top()->group_vote_count_ == max_vote) {
             first_party_groups_info.pop();
             first_party_pop_num++;
         }
-        while (!second_party_groups_info.empty() && second_party_groups_info.top().group_vote_count_ == max_vote) {
+        while (!second_party_groups_info.empty() && second_party_groups_info.top()->group_vote_count_ == max_vote) {
             second_party_groups_info.pop();
             second_party_pop_num++;
         }
