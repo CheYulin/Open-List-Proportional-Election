@@ -11,13 +11,13 @@ using namespace election;
 //        first_party_strategy), stored_strategy_(second_party_strategy) {
 //
 //}
-Profile::Profile():fixed_strategy_payoff_(0),store_strategy_payoff_(0) {
+Profile::Profile() : fixed_strategy_payoff_(0), store_strategy_payoff_(0) {
 
 }
 
 //Solver Related
 Solver::Solver(Party *first_party, Party *second_party, int seats_num) :
-        first_party_(first_party), second_party_(second_party), seats_num_(seats_num){
+        first_party_(first_party), second_party_(second_party), seats_num_(seats_num) {
 
 }
 
@@ -40,7 +40,7 @@ Profile election::Solver::ComputePayOff(Strategy *fixed_strategy,
     while (!fixed_strategy_info.empty() && fixed_strategy_info.top()->group_vote_count_ >= quota) {
         fixed_strategy_info.pop();
         profile.fixed_strategy_payoff_ += 1;
-        remaining_seats --;
+        remaining_seats--;
     }
     while (!stored_strategy_info.empty() && stored_strategy_info.top()->group_vote_count_ >= quota) {
         stored_strategy_info.pop();
@@ -66,14 +66,14 @@ Profile election::Solver::ComputePayOff(Strategy *fixed_strategy,
         }
         int sum_pop_num = fixed_strategy_pop_num + stored_strategy_pop_num;
         if (sum_pop_num > remaining_seats) {
-            profile.fixed_strategy_payoff_ += remaining_seats * fixed_strategy_pop_num / (double)sum_pop_num;
-            profile.store_strategy_payoff_ += remaining_seats * stored_strategy_pop_num / (double)sum_pop_num;
-            remaining_seats =0;
+            profile.fixed_strategy_payoff_ += remaining_seats * fixed_strategy_pop_num / (double) sum_pop_num;
+            profile.store_strategy_payoff_ += remaining_seats * stored_strategy_pop_num / (double) sum_pop_num;
+            remaining_seats = 0;
         }
         else {
             profile.fixed_strategy_payoff_ += fixed_strategy_pop_num;
             profile.store_strategy_payoff_ += stored_strategy_pop_num;
-            remaining_seats -= fixed_strategy_pop_num+stored_strategy_pop_num;
+            remaining_seats -= fixed_strategy_pop_num + stored_strategy_pop_num;
         }
     }
 
@@ -83,8 +83,8 @@ Profile election::Solver::ComputePayOff(Strategy *fixed_strategy,
 //Find Nash Equilibrium Related
 
 void Solver::FindNashEquilibrium(Party *store_nash_equilibrium_party, Party *fixed_for_traverse_party) {
-    vector<SameSizeStrategies> *fixed_different_size_strategies = &fixed_for_traverse_party->getStrategies_with_different_size_();
-    vector<SameSizeStrategies> *store_different_size_strategies = &store_nash_equilibrium_party->getStrategies_with_different_size_();
+    vector <SameSizeStrategies> *fixed_different_size_strategies = &fixed_for_traverse_party->getStrategies_with_different_size_();
+    vector <SameSizeStrategies> *store_different_size_strategies = &store_nash_equilibrium_party->getStrategies_with_different_size_();
     for (SameSizeStrategies &fixed_same_size_strategies : *fixed_different_size_strategies) {
         for (Strategy &fixed_strategy : fixed_same_size_strategies) {
             TraverseTheOtherPartyStrategies(store_different_size_strategies, &fixed_strategy);
@@ -92,15 +92,16 @@ void Solver::FindNashEquilibrium(Party *store_nash_equilibrium_party, Party *fix
     }
 }
 
-void Solver::TraverseTheOtherPartyStrategies(vector<SameSizeStrategies> *store_different_size_strategies,
+void Solver::TraverseTheOtherPartyStrategies(vector <SameSizeStrategies> *store_different_size_strategies,
                                              Strategy *fixed_strategy) {
     vector<Strategy *> possible_to_be_updated_stored_strategies;
     for (SameSizeStrategies &store_same_size_strategies : *store_different_size_strategies) {
         for (Strategy &stored_strategy: store_same_size_strategies) {
 
             //Two Party Give Partition Less Than Seats Num : Should Be Excluded
-            if(fixed_strategy->groups_combination_info_.size()+stored_strategy.groups_combination_info_.size() < seats_num_){
-                continue;
+            if (fixed_strategy->groups_combination_info_.size() + stored_strategy.groups_combination_info_.size() <
+                seats_num_) {
+                break;
             }
 
             Profile profile = ComputePayOff(fixed_strategy, &stored_strategy);
@@ -133,7 +134,7 @@ void Solver::TraverseTheOtherPartyStrategies(vector<SameSizeStrategies> *store_d
 
 void Solver::PrintNashEquilibrium() {
     FindNashEquilibrium(first_party_, second_party_);
-    vector<SameSizeStrategies> *store_different_size_strategies = &first_party_->getStrategies_with_different_size_();
+    vector <SameSizeStrategies> *store_different_size_strategies = &first_party_->getStrategies_with_different_size_();
     std::ios_base::sync_with_stdio(false);
     cout << setiosflags(ios::fixed) << setprecision(2);
     for (SameSizeStrategies &store_same_size_strategies : *store_different_size_strategies) {

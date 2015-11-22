@@ -4,7 +4,7 @@
 #include "test_unit.h"
 
 int main() {
-    string in_file_name = "/home/cheyulin/gitrepos/Open-List-Proportional-Representation/input/input_example1_seatnum_2_group1_3_group2_2.txt";
+    string in_file_name = "/home/cheyulin/gitrepos/Open-List-Proportional-Representation/input/input_example8_seatnum_3_group1_5_group2_4.txt";
     IOProcessor my_io_processor;
     Solver *my_solver = my_io_processor.GetSolver(in_file_name);
 
