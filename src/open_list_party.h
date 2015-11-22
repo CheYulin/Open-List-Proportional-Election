@@ -45,7 +45,7 @@ namespace election {
     struct Strategy {
         CompareVoteGroupPriorityQueue groups_combination_info_;
         vector<Strategy*> possible_nash_equilibrium_;
-        StrategyPayOff max_pay_off_;
+        StrategyPayOff the_other_party_max_pay_off_;
         Party *party_;
 
         Strategy(Party * party);

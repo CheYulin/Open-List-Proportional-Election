@@ -47,7 +47,7 @@ bool GroupVoteCompare::operator()(const Group *left_group, const Group *right_gr
 }
 
 //Strategy Related
-Strategy::Strategy(Party *party) : max_pay_off_(-1), party_(party) {
+Strategy::Strategy(Party *party) : the_other_party_max_pay_off_(-1), party_(party) {
 }
 
 string Strategy::ToString() {
