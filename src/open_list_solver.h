@@ -26,16 +26,17 @@ namespace election {
         Party *second_party_;
 
         void TraverseTheOtherPartyStrategies(vector<SameSizeStrategies> *store_different_size_strategies, Strategy *fixed_strategy);
-        void FindNashEquilibrium(Party* store_nash_equilibrium_party, Party* fixed_for_traverse_party);
+
+        virtual void FindNashEquilibrium(Party* store_nash_equilibrium_party, Party* fixed_for_traverse_party);
 
     public:
         Solver(Party *first_party, Party *second_party, int seats_num);
 
-        ~Solver();
+        virtual ~Solver();
 
         Profile ComputePayOff(Strategy *fixed_strategy, Strategy *stored_strategy);
 
-        void PrintNashEquilibrium();
+         void PrintNashEquilibrium();
 
         //Auto Generated
         Party *getFirst_party_() const {

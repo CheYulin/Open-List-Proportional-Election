@@ -78,8 +78,8 @@ Profile election::Solver::ComputePayOff(Strategy *fixed_strategy,
 //Find Nash Equilibrium Related
 
 void Solver::FindNashEquilibrium(Party *store_nash_equilibrium_party, Party *fixed_for_traverse_party) {
-    vector <SameSizeStrategies> *fixed_different_size_strategies = &fixed_for_traverse_party->getStrategies_with_different_size_();
-    vector <SameSizeStrategies> *store_different_size_strategies = &store_nash_equilibrium_party->getStrategies_with_different_size_();
+    vector<SameSizeStrategies> *fixed_different_size_strategies = &fixed_for_traverse_party->getStrategies_with_different_size_();
+    vector<SameSizeStrategies> *store_different_size_strategies = &store_nash_equilibrium_party->getStrategies_with_different_size_();
     for (SameSizeStrategies &fixed_same_size_strategies : *fixed_different_size_strategies) {
         for (Strategy &fixed_strategy : fixed_same_size_strategies) {
             TraverseTheOtherPartyStrategies(store_different_size_strategies, &fixed_strategy);
@@ -87,14 +87,15 @@ void Solver::FindNashEquilibrium(Party *store_nash_equilibrium_party, Party *fix
     }
 }
 
-void Solver::TraverseTheOtherPartyStrategies(vector <SameSizeStrategies> *store_different_size_strategies,
+void Solver::TraverseTheOtherPartyStrategies(vector<SameSizeStrategies> *store_different_size_strategies,
                                              Strategy *fixed_strategy) {
     vector<Strategy *> possible_to_be_updated_stored_strategies;
     for (SameSizeStrategies &store_same_size_strategies : *store_different_size_strategies) {
         for (Strategy &stored_strategy: store_same_size_strategies) {
 
             //Two Party Give Partition Less Than Seats Num : Should Be Excluded
-            if (fixed_strategy->groups_combination_info_.size() + stored_strategy.groups_combination_info_.size() < seats_num_) {
+            if (fixed_strategy->groups_combination_info_.size() + stored_strategy.groups_combination_info_.size() <
+                seats_num_) {
                 break;
             }
 
@@ -113,7 +114,7 @@ void Solver::TraverseTheOtherPartyStrategies(vector <SameSizeStrategies> *store_
                 }
 
                 //Judge If Party_Fixed Can Shift to Left (Compared with Former Max Party_Fixed Payoff)
-                if(profile.fixed_strategy_payoff_ < stored_strategy.the_other_party_max_pay_off_){
+                if (profile.fixed_strategy_payoff_ < stored_strategy.the_other_party_max_pay_off_) {
                     continue;
                 }
 
@@ -139,7 +140,7 @@ void Solver::TraverseTheOtherPartyStrategies(vector <SameSizeStrategies> *store_
 
 void Solver::PrintNashEquilibrium() {
     FindNashEquilibrium(first_party_, second_party_);
-    vector <SameSizeStrategies> *store_different_size_strategies = &first_party_->getStrategies_with_different_size_();
+    vector<SameSizeStrategies> *store_different_size_strategies = &first_party_->getStrategies_with_different_size_();
     std::ios_base::sync_with_stdio(false);
     cout << setiosflags(ios::fixed) << setprecision(2);
     for (SameSizeStrategies &store_same_size_strategies : *store_different_size_strategies) {
