@@ -7,7 +7,6 @@
 
 #endif //SRC_OPEN_LIST_INCLUDES_H_H
 
-#include <memory>
 #include <set>
 #include <map>
 #include <vector>
@@ -17,8 +16,7 @@
 #include <fstream>
 #include <sstream>
 #include <regex>
-#include <string>
-
+#include <iomanip>
 
 using namespace std;
 

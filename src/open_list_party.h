@@ -45,12 +45,12 @@ namespace election {
 
     struct Strategy {
         CompareVoteGroupPriorityQueue groups_combination_info_;
-        vector<Strategy> possible_nash_equilibrium_;
+        vector<Strategy*> possible_nash_equilibrium_;
         StrategyPayOff max_pay_off_;
         Party *party_;
 
         Strategy(Party * party);
-        string PartitionToString();
+        string ToString();
     };
 
     typedef vector<Strategy> SameSizeStrategies;
@@ -98,7 +98,7 @@ namespace election {
             return candidates_info_;
         }
 
-        const vector<SameSizeStrategies> &getStrategies_with_different_size_() const {
+        vector<SameSizeStrategies> &getStrategies_with_different_size_() {
             return strategies_with_different_size_;
         }
     };

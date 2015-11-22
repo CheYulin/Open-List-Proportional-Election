@@ -14,13 +14,15 @@ using namespace election;
 namespace election {
 
     struct Profile {
-        Strategy *first_party_strategy_;
-        Strategy *second_party_strategy_;
-        StrategyPayOff first_party_payoff_;
-        StrategyPayOff second_party_payoff_;
+//        Strategy *fixed_strategy_;
+//        Strategy *stored_strategy_;
+        StrategyPayOff fixed_strategy_payoff_;
+        StrategyPayOff store_strategy_payoff_;
 
-        Profile(Strategy *first_party_strategy, Strategy *second_party_strategy);
+//        Profile(Strategy *first_party_strategy, Strategy *second_party_strategy);
+
     };
+
 
     class Solver {
     private:
@@ -28,12 +30,17 @@ namespace election {
         Party *first_party_;
         Party *second_party_;
 
-        Profile ComputePayOff(Strategy *first_party_strategy, Strategy *second_party_strategy);
+        Profile ComputePayOff(Strategy *fixed_strategy, Strategy *stored_strategy);
+
+        void TraverseTheOtherPartyStrategies(vector<SameSizeStrategies> *store_different_size_strategies, Strategy *fixed_strategy);
+        void FindNashEquilibrium(Party* store_nash_equilibrium_party, Party* fixed_for_traverse_party);
 
     public:
         Solver(Party *first_party, Party *second_party, int seats_num);
 
         ~Solver();
+
+        void PrintNashEquilibrium();
 
         //Auto Generated
         Party *getFirst_party_() const {

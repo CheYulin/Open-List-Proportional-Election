@@ -47,23 +47,23 @@ bool GroupVoteCompare::operator()(const Group *left_group, const Group *right_gr
 }
 
 //Strategy Related
-Strategy::Strategy(Party * party) : max_pay_off_(-1), party_(party) {
+Strategy::Strategy(Party *party) : max_pay_off_(-1), party_(party) {
 }
 
-string Strategy::PartitionToString() {
+string Strategy::ToString() {
     CompareVoteGroupPriorityQueue priority_queue = groups_combination_info_;
     CompareCandidatesGroupSet compare_candidate_group_set;
     stringstream string_builder;
     string_builder << "{";
-    while(!priority_queue.empty()){
+    while (!priority_queue.empty()) {
         compare_candidate_group_set.insert(*priority_queue.top());
         priority_queue.pop();
     }
-    for(Group group : compare_candidate_group_set){
+    for (Group group : compare_candidate_group_set) {
         string_builder << "{";
-        for(int i=0; i<group.candidates_.size();i++){
+        for (int i = 0; i < group.candidates_.size(); i++) {
             string_builder << party_->getCandidates_info_().at(group.candidates_[i]).candidate_name_;
-            if(i!=group.candidates_.size()-1){
+            if (i != group.candidates_.size() - 1) {
                 string_builder << ",";
             }
         }
@@ -86,13 +86,12 @@ Party::Party(vector<CandidateInfo> candidates_info, int seats_num) {
 
 int Party::GetSumVotes() {
     if (sum_votes_ == 0) {
-        int count = 0;
         for (auto candidate_info : candidates_info_) {
-            count += candidate_info.first;
+            sum_votes_ += candidate_info.second.candidate_vote_count_;
         }
+
     }
-    else
-        return sum_votes_;
+    return sum_votes_;
 }
 
 void Party::InitGroupsAlternativesInfo() {

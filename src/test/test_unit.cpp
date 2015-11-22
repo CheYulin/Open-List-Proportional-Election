@@ -54,7 +54,7 @@ void TestUnit::TestStrategiesInit(Party *party) {
     for (SameSizeStrategies same_size_strategies : different_size_strategies) {
         for (int i=0;i<same_size_strategies.size();i++) {
             count++;
-            cout << same_size_strategies[i].PartitionToString() << "    ";
+            cout << same_size_strategies[i].ToString() << "    ";
         }
         cout << endl << endl;
 
