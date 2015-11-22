@@ -11,10 +11,13 @@ using namespace election;
 //        first_party_strategy), stored_strategy_(second_party_strategy) {
 //
 //}
+Profile::Profile():fixed_strategy_payoff_(0),store_strategy_payoff_(0) {
+
+}
 
 //Solver Related
 Solver::Solver(Party *first_party, Party *second_party, int seats_num) :
-        first_party_(first_party), second_party_(second_party), seats_num_(seats_num) {
+        first_party_(first_party), second_party_(second_party), seats_num_(seats_num),test_num_(0){
 
 }
 
@@ -25,16 +28,18 @@ Solver::~Solver() {
 
 Profile election::Solver::ComputePayOff(Strategy *fixed_strategy,
                                         Strategy *stored_strategy) {
+    test_num_++;
+    if(test_num_ == 8){
+        cout << "attetion test";
+    }
     int sum_votes = first_party_->GetSumVotes() + second_party_->GetSumVotes();
     int remaining_seats = seats_num_;
     int quota = sum_votes / seats_num_;
     CompareVoteGroupPriorityQueue fixed_strategy_info = fixed_strategy->groups_combination_info_;
     CompareVoteGroupPriorityQueue stored_strategy_info = stored_strategy->groups_combination_info_;
-//    Profile profile(fixed_strategy, stored_strategy);
+
     Profile profile;
-    if(fixed_strategy_info.size() ==2 && stored_strategy_info.size() ==3){
-        cout << "test";
-    }
+
     //First Round with Quota
     while (!fixed_strategy_info.empty() && fixed_strategy_info.top()->group_vote_count_ >= quota) {
         fixed_strategy_info.pop();
@@ -75,8 +80,8 @@ Profile election::Solver::ComputePayOff(Strategy *fixed_strategy,
             remaining_seats -= fixed_strategy_pop_num+stored_strategy_pop_num;
         }
     }
-    if(profile.fixed_strategy_payoff_ + profile.store_strategy_payoff_ > seats_num_){
-        cout << "test";
+    if(profile.store_strategy_payoff_+profile.fixed_strategy_payoff_ > seats_num_){
+       cout <<this->test_num_ ;
     }
     return profile;
 }
@@ -104,6 +109,9 @@ void Solver::TraverseTheOtherPartyStrategies(vector<SameSizeStrategies> *store_d
                 continue;
             }
 
+            if(fixed_strategy->groups_combination_info_.size() ==0 || stored_strategy.groups_combination_info_.size()==0){
+                cout << "test";
+            }
             Profile profile = ComputePayOff(fixed_strategy, &stored_strategy);
 
             if (profile.store_strategy_payoff_ < stored_strategy.max_pay_off_)
@@ -153,3 +161,5 @@ void Solver::PrintNashEquilibrium() {
 
 
 }
+
+

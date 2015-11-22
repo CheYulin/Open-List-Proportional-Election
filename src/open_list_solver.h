@@ -14,18 +14,14 @@ using namespace election;
 namespace election {
 
     struct Profile {
-//        Strategy *fixed_strategy_;
-//        Strategy *stored_strategy_;
         StrategyPayOff fixed_strategy_payoff_;
         StrategyPayOff store_strategy_payoff_;
-
-//        Profile(Strategy *first_party_strategy, Strategy *second_party_strategy);
-
+        Profile();
     };
-
 
     class Solver {
     private:
+        int test_num_;
         int seats_num_;
         Party *first_party_;
         Party *second_party_;
