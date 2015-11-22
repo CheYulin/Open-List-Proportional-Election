@@ -19,4 +19,5 @@ public:
     void TestFindCertainGroup(const Group& to_be_find_group, Party* party);
     void TestSeatNum(Solver *solver);
     void TestStrategiesInit(Party *party);
+    void TestPayoffCompute(Party* store_nash_equilibrium_party, Party* fixed_for_traverse_party,Solver *solver);
 };

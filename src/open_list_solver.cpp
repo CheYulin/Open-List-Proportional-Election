@@ -17,7 +17,7 @@ Profile::Profile():fixed_strategy_payoff_(0),store_strategy_payoff_(0) {
 
 //Solver Related
 Solver::Solver(Party *first_party, Party *second_party, int seats_num) :
-        first_party_(first_party), second_party_(second_party), seats_num_(seats_num),test_num_(0){
+        first_party_(first_party), second_party_(second_party), seats_num_(seats_num){
 
 }
 
@@ -28,10 +28,6 @@ Solver::~Solver() {
 
 Profile election::Solver::ComputePayOff(Strategy *fixed_strategy,
                                         Strategy *stored_strategy) {
-    test_num_++;
-    if(test_num_ == 8){
-        cout << "attetion test";
-    }
     int sum_votes = first_party_->GetSumVotes() + second_party_->GetSumVotes();
     int remaining_seats = seats_num_;
     int quota = sum_votes / seats_num_;
@@ -80,9 +76,7 @@ Profile election::Solver::ComputePayOff(Strategy *fixed_strategy,
             remaining_seats -= fixed_strategy_pop_num+stored_strategy_pop_num;
         }
     }
-    if(profile.store_strategy_payoff_+profile.fixed_strategy_payoff_ > seats_num_){
-       cout <<this->test_num_ ;
-    }
+
     return profile;
 }
 
@@ -109,9 +103,6 @@ void Solver::TraverseTheOtherPartyStrategies(vector<SameSizeStrategies> *store_d
                 continue;
             }
 
-            if(fixed_strategy->groups_combination_info_.size() ==0 || stored_strategy.groups_combination_info_.size()==0){
-                cout << "test";
-            }
             Profile profile = ComputePayOff(fixed_strategy, &stored_strategy);
 
             if (profile.store_strategy_payoff_ < stored_strategy.max_pay_off_)

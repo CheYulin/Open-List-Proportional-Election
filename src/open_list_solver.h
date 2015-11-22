@@ -21,12 +21,11 @@ namespace election {
 
     class Solver {
     private:
-        int test_num_;
         int seats_num_;
         Party *first_party_;
         Party *second_party_;
 
-        Profile ComputePayOff(Strategy *fixed_strategy, Strategy *stored_strategy);
+
 
         void TraverseTheOtherPartyStrategies(vector<SameSizeStrategies> *store_different_size_strategies, Strategy *fixed_strategy);
         void FindNashEquilibrium(Party* store_nash_equilibrium_party, Party* fixed_for_traverse_party);
@@ -35,6 +34,8 @@ namespace election {
         Solver(Party *first_party, Party *second_party, int seats_num);
 
         ~Solver();
+
+        Profile ComputePayOff(Strategy *fixed_strategy, Strategy *stored_strategy);
 
         void PrintNashEquilibrium();
 

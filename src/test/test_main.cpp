@@ -20,6 +20,8 @@ int main() {
     cout << "Second Party";
     test_unit.TestStrategiesInit(my_solver->getSecond_party_());
 
+    test_unit.TestPayoffCompute(my_solver->getFirst_party_(),my_solver->getSecond_party_(),my_solver);
+
     delete my_solver;
 
     return 0;
