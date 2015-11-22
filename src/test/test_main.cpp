@@ -3,8 +3,8 @@
 //
 #include "test_unit.h"
 
-int main() {
-    string in_file_name = "/home/cheyulin/gitrepos/Open-List-Proportional-Representation/input/input_example6_seatnum_1_group1_5_group2_4.txt";
+int main(int argc, char* argv[]) {
+    string in_file_name = argv[1];
     IOProcessor my_io_processor;
     Solver *my_solver = my_io_processor.GetSolver(in_file_name);
 
