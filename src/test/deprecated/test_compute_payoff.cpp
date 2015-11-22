@@ -15,6 +15,7 @@ struct CmpPair {
     };
 
 };
+
 int main(){
     multiset<Pair, CmpPair> my_set;
     my_set.insert(Pair(1,2));
@@ -38,6 +39,4 @@ int main(){
         priority_queue1.pop();
         cout << pair1.key <<","<< pair1.value << endl;
     }
-
-
 }

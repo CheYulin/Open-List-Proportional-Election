@@ -6,11 +6,6 @@
 
 using namespace election;
 
-//Profile Related
-//Profile::Profile(Strategy *first_party_strategy, Strategy *second_party_strategy) : fixed_strategy_(
-//        first_party_strategy), stored_strategy_(second_party_strategy) {
-//
-//}
 Profile::Profile() : fixed_strategy_payoff_(0), store_strategy_payoff_(0) {
 
 }

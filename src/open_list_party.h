@@ -42,7 +42,6 @@ namespace election {
     typedef set<Group, GroupCandidatesCompare> CompareCandidatesGroupSet;
     typedef priority_queue<const Group *, vector<const Group *>, GroupVoteCompare> CompareVoteGroupPriorityQueue;
 
-
     struct Strategy {
         CompareVoteGroupPriorityQueue groups_combination_info_;
         vector<Strategy*> possible_nash_equilibrium_;

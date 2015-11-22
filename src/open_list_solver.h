@@ -25,8 +25,6 @@ namespace election {
         Party *first_party_;
         Party *second_party_;
 
-
-
         void TraverseTheOtherPartyStrategies(vector<SameSizeStrategies> *store_different_size_strategies, Strategy *fixed_strategy);
         void FindNashEquilibrium(Party* store_nash_equilibrium_party, Party* fixed_for_traverse_party);
 
