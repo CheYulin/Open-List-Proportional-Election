@@ -101,32 +101,23 @@ void Solver::TraverseTheOtherPartyStrategies(vector<SameSizeStrategies> *store_d
 
             Profile profile = ComputePayOff(fixed_strategy, &stored_strategy);
 
-            //Judge If Party_Store Can Shift Down (Given a Fixed Other Party Strategy)
-            if (profile.store_strategy_payoff_ < fixed_strategy->the_other_party_max_pay_off_)
-                continue;
-            else {
-                //Update Store_Strategy_Max_Payoff (Given a Fixed Other Party Strategy)
-                //Only When Upper Strategy can Shift to This Guy
-                if (profile.store_strategy_payoff_ > fixed_strategy->the_other_party_max_pay_off_) {
-                    //Upper Guys can Shift to This Guy
-                    possible_to_be_updated_stored_strategies.clear();
-                    fixed_strategy->the_other_party_max_pay_off_ = profile.store_strategy_payoff_;
-                }
+            //Update Fixed_Strategy_Max_Payoff (Given a certain Stored Strategy)
+            //Only When Left Strategy can Shift to This Guy
+            if (profile.fixed_strategy_payoff_ > stored_strategy.the_other_party_max_pay_off_) {
+                //Former Assumed Nash Equilibrium Can Shift to This Guy, Need to Remove Former
+                stored_strategy.possible_nash_equilibrium_.clear();
+                stored_strategy.the_other_party_max_pay_off_ = profile.fixed_strategy_payoff_;
+            }
 
-                //Judge If Party_Fixed Can Shift to Left (Compared with Former Max Party_Fixed Payoff)
-                if (profile.fixed_strategy_payoff_ < stored_strategy.the_other_party_max_pay_off_) {
-                    continue;
-                }
+            //Update Store_Strategy_Max_Payoff (Given a Fixed Other Party Strategy)
+            //Only When Upper Strategy can Shift to This Guy
+            if (profile.store_strategy_payoff_ > fixed_strategy->the_other_party_max_pay_off_) {
+                //Upper Guys can Shift to This Guy
+                possible_to_be_updated_stored_strategies.clear();
+                fixed_strategy->the_other_party_max_pay_off_ = profile.store_strategy_payoff_;
+            }
 
-                //Update Fixed_Strategy_Max_Payoff (Given a certain Stored Strategy)
-                //Only When Left Strategy can Shift to This Guy
-                if (profile.fixed_strategy_payoff_ > stored_strategy.the_other_party_max_pay_off_) {
-                    //Former Assumed Nash Equilibrium Can Shift to This Guy, Need to Remove Former
-                    stored_strategy.possible_nash_equilibrium_.clear();
-                    stored_strategy.the_other_party_max_pay_off_ = profile.fixed_strategy_payoff_;
-                }
-
-
+            if(profile.fixed_strategy_payoff_ >= stored_strategy.the_other_party_max_pay_off_ && profile.store_strategy_payoff_ >= fixed_strategy->the_other_party_max_pay_off_){
                 possible_to_be_updated_stored_strategies.push_back(&stored_strategy);
             }
         }
