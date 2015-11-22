@@ -117,7 +117,8 @@ void Solver::TraverseTheOtherPartyStrategies(vector<SameSizeStrategies> *store_d
                 fixed_strategy->the_other_party_max_pay_off_ = profile.store_strategy_payoff_;
             }
 
-            if(profile.fixed_strategy_payoff_ >= stored_strategy.the_other_party_max_pay_off_ && profile.store_strategy_payoff_ >= fixed_strategy->the_other_party_max_pay_off_){
+            if (profile.fixed_strategy_payoff_ >= stored_strategy.the_other_party_max_pay_off_ &&
+                profile.store_strategy_payoff_ >= fixed_strategy->the_other_party_max_pay_off_) {
                 possible_to_be_updated_stored_strategies.push_back(&stored_strategy);
             }
         }

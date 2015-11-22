@@ -19,8 +19,8 @@ int main() {
     cout << endl << "Second Party" << endl;
     test_unit.TestStrategiesInit(my_solver->getSecond_party_());
 
-    test_unit.TestPayoffCompute(my_solver->getFirst_party_(),my_solver->getSecond_party_(),my_solver);
-    cout << endl << endl <<"Next : Nash Equ" << endl << endl;
+    test_unit.TestPayoffCompute(my_solver->getFirst_party_(), my_solver->getSecond_party_(), my_solver);
+    cout << endl << endl << "Next : Nash Equ" << endl << endl;
     test_unit.TestNashEquilibriumWithBruteForceSolver(my_solver);
 
     delete my_solver;

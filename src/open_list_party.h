@@ -13,6 +13,7 @@ namespace election {
     typedef int CandidateVoteCount;
     typedef string CandidateName;
     typedef double StrategyPayOff;
+
     class Party;
 
     struct CandidateInfo {
@@ -44,11 +45,12 @@ namespace election {
 
     struct Strategy {
         CompareVoteGroupPriorityQueue groups_combination_info_;
-        vector<Strategy*> possible_nash_equilibrium_;
+        vector<Strategy *> possible_nash_equilibrium_;
         StrategyPayOff the_other_party_max_pay_off_;
         Party *party_;
 
-        Strategy(Party * party);
+        Strategy(Party *party);
+
         string ToString();
     };
 

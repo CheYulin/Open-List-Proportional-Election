@@ -8,8 +8,9 @@
 #endif //SRC_OPEN_LIST_INPUT_OUTPUT_H
 
 #include "open_list_solver.h"
-namespace election{
-    class IOProcessor{
+
+namespace election {
+    class IOProcessor {
     private:
         vector<CandidateInfo> GetPartyCandidates(string &line);
 

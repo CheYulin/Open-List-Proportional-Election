@@ -1,4 +1,3 @@
-
 #include "open_list_input_output.h"
 
 

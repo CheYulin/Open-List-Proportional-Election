@@ -33,11 +33,15 @@ public:
 class BruteForceSolver : public Solver {
 
 private:
-    void TraverseStrategyFromPerspectiveOfOneParty(vector<SameSizeStrategies> *store_different_size_strategies, vector<SameSizeStrategies> *fixed_different_size_strategies);
-    void TraverseProfileToCheckNashEquilibrium(vector<SameSizeStrategies> *store_different_size_strategies, vector<SameSizeStrategies> *fixed_different_size_strategies);
+    void TraverseStrategyFromPerspectiveOfOneParty(vector<SameSizeStrategies> *store_different_size_strategies,
+                                                   vector<SameSizeStrategies> *fixed_different_size_strategies);
+
+    void TraverseProfileToCheckNashEquilibrium(vector<SameSizeStrategies> *store_different_size_strategies,
+                                               vector<SameSizeStrategies> *fixed_different_size_strategies);
+
     virtual void FindNashEquilibrium(Party *store_nash_equilibrium_party, Party *fixed_for_traverse_party);
 
 public:
-    BruteForceSolver(Party *first_party, Party *second_party, int seats_num) ;
+    BruteForceSolver(Party *first_party, Party *second_party, int seats_num);
 
 };

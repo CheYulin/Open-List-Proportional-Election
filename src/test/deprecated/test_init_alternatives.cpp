@@ -31,11 +31,11 @@ struct Group {
             if (this->candidates_[i] < right_group.candidates_[i]) {
                 return true;
             }
-            else if(this->candidates_[i] > right_group.candidates_[i]){
+            else if (this->candidates_[i] > right_group.candidates_[i]) {
                 return false;
             }
         }
-        if(max_size < right_collection_size){
+        if (max_size < right_collection_size) {
             return true;
         }
         else
@@ -44,20 +44,20 @@ struct Group {
 
 };
 
-struct GroupCmp{
-    bool operator() (const Group& left_group, const Group& right_group) const{
-        int left_collection_size =left_group.candidates_.size();
+struct GroupCmp {
+    bool operator()(const Group &left_group, const Group &right_group) const {
+        int left_collection_size = left_group.candidates_.size();
         int right_collection_size = right_group.candidates_.size();
         int max_size = left_collection_size < right_collection_size ? left_collection_size : right_collection_size;
         for (int i = 0; i < max_size; i++) {
             if (left_group.candidates_[i] < right_group.candidates_[i]) {
                 return true;
             }
-            else if(left_group.candidates_[i] > right_group.candidates_[i]){
+            else if (left_group.candidates_[i] > right_group.candidates_[i]) {
                 return false;
             }
         }
-        if(max_size < right_collection_size){
+        if (max_size < right_collection_size) {
             return true;
         }
         else
@@ -114,7 +114,7 @@ void TestConstrctCombination() {
     }
 }
 
-void TestCOnstructCOmbinationWithSet(){
+void TestCOnstructCOmbinationWithSet() {
     map<int, int> my_map;
     my_map.insert(make_pair(1, 2));
     my_map.insert(make_pair(2, 3));
@@ -124,8 +124,8 @@ void TestCOnstructCOmbinationWithSet(){
     my_map.insert(make_pair(6, 9));
     int map_size = my_map.size();
 
-    vector<set<Group,GroupCmp>> groups_info_with_different_size_ = vector<set<Group,GroupCmp>>();
-    set<Group,GroupCmp> first_groups_with_size_one = set<Group,GroupCmp>();
+    vector<set<Group, GroupCmp>> groups_info_with_different_size_ = vector<set<Group, GroupCmp>>();
+    set<Group, GroupCmp> first_groups_with_size_one = set<Group, GroupCmp>();
     vector<Group> first_groups_with_size_one_info = vector<Group>();
     for (auto pair : my_map) {
         Group data = Group();
@@ -137,8 +137,8 @@ void TestCOnstructCOmbinationWithSet(){
 
     groups_info_with_different_size_.push_back(first_groups_with_size_one);
 
-    set<Group,GroupCmp> former_groups_with_same_size = first_groups_with_size_one;
-    set<Group,GroupCmp> latter_groups_with_same_size = set<Group,GroupCmp>();
+    set<Group, GroupCmp> former_groups_with_same_size = first_groups_with_size_one;
+    set<Group, GroupCmp> latter_groups_with_same_size = set<Group, GroupCmp>();
     int max_value = first_groups_with_size_one_info[first_groups_with_size_one_info.size() - 1].candidates_[0];
     for (int i = 1; i < map_size; i++) {
         for (Group former_data: former_groups_with_same_size) {
@@ -152,10 +152,10 @@ void TestCOnstructCOmbinationWithSet(){
         }
         groups_info_with_different_size_.push_back(latter_groups_with_same_size);
         former_groups_with_same_size = latter_groups_with_same_size;
-        latter_groups_with_same_size = set<Group,GroupCmp>();
+        latter_groups_with_same_size = set<Group, GroupCmp>();
     }
 
-    for (set<Group,GroupCmp> sets: groups_info_with_different_size_) {
+    for (set<Group, GroupCmp> sets: groups_info_with_different_size_) {
         for (Group data: sets) {
             cout << "(";
             for (int integer : data.candidates_) {
@@ -170,7 +170,7 @@ void TestCOnstructCOmbinationWithSet(){
     test_group.candidates_.push_back(1);
     test_group.candidates_.push_back(2);
     test_group.candidates_.push_back(4);
-    for (set<Group,GroupCmp> sets: groups_info_with_different_size_) {
+    for (set<Group, GroupCmp> sets: groups_info_with_different_size_) {
         if (sets.find(test_group) != sets.end()) {
             cout << "(";
             for (int integer :sets.find(test_group)->candidates_)
@@ -179,11 +179,12 @@ void TestCOnstructCOmbinationWithSet(){
         }
     }
 }
+
 int main() {
-    vector<Group> * my_vector = new vector<Group>(10);
+    vector<Group> *my_vector = new vector<Group>(10);
     delete my_vector;
     std::ios_base::sync_with_stdio(false);
-    cout << setiosflags(ios::fixed)<<setprecision(2) << (double)100 << "~~~~"<<100.324324<<endl;
-    cout <<"haha" <<43243.432432 << endl;
+    cout << setiosflags(ios::fixed) << setprecision(2) << (double) 100 << "~~~~" << 100.324324 << endl;
+    cout << "haha" << 43243.432432 << endl;
 }
 
