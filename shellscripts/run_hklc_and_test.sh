@@ -36,8 +36,8 @@ function runHklc(){
 	done
 }
 
-input_dir=/home/cheyulin/gitrepos/Open-List-Proportional-Representation/input 
-output_dir=/home/cheyulin/gitrepos/Open-List-Proportional-Representation/output
+input_dir=/home/cheyulin/gitrepos/Open-List-Proportional-Representation/testinput 
+output_dir=/home/cheyulin/gitrepos/Open-List-Proportional-Representation/testoutput
 hklc_release_dir=/home/cheyulin/gitrepos/Open-List-Proportional-Representation/release
 
 runHklc $input_dir $output_dir $hklc_release_dir

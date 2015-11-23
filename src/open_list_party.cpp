@@ -35,7 +35,7 @@ string Strategy::ToString() {
 }
 
 //Party Related
-Party::Party(vector<CandidateInfo> candidates_info, int seats_num) {
+Party::Party(vector<CandidateInfo> candidates_info, int seats_num) :sum_votes_(0){
     int candidate_id = 1;
     for (CandidateInfo candidate_info : candidates_info) {
         candidates_info_.insert(make_pair(candidate_id, candidate_info));
@@ -55,8 +55,8 @@ Party::~Party() {
 
 int Party::GetSumVotes() {
     if (sum_votes_ == 0) {
-        for (auto candidate_info : candidates_info_) {
-            sum_votes_ += candidate_info.second.candidate_vote_count_;
+        for (auto iter = candidates_info_.begin(); iter!= candidates_info_.end(); iter++) {
+            sum_votes_ +=iter->second.candidate_vote_count_;
         }
 
     }

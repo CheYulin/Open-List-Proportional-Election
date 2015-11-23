@@ -26,6 +26,9 @@ void Solver::UpdateCertainCandidateListFirstRoundSeatNum(vector<CandidateListInf
                                                          StrategyPayOff &strategy_payoff, int &remaining_seats,
                                                          const int quota) {
     int stored_quota_info = strategy_priority_queue.top()->first_round_seat_num_;
+    if(stored_quota_info >100){
+        cout << "fail to retrive";
+    }
     const CandidateListInfo *candidate_list_info = strategy_priority_queue.top();
     //First Time to Query This Candidate List
     if (stored_quota_info == -1) {
