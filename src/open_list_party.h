@@ -6,46 +6,10 @@
 
 #endif //SRC_OPEN_LIST_DATA_H
 
-#include "open_list_includes.h"
+#include "open_list_party_basic_info.h"
+using namespace election;
 
 namespace election {
-    typedef int CandidateId;
-    typedef int CandidateVoteCount;
-    typedef string CandidateName;
-    typedef double StrategyPayOff;
-
-    class Party;
-
-    struct CandidateInfo {
-        CandidateName candidate_name_;
-        CandidateVoteCount candidate_vote_count_;
-
-        CandidateInfo();
-
-        CandidateInfo(CandidateName candidate_name, CandidateVoteCount candidate_vote_count);
-    };
-
-    struct CandidateListInfo {
-        vector<CandidateId>* candidates_;
-        int group_vote_count_;
-
-        CandidateListInfo();
-        CandidateListInfo(const CandidateListInfo& candidate_list_info);
-//        ~CandidateListInfo();
-        string GetCandidatesAsString() const;
-    };
-
-    struct GroupCandidatesCompare {
-        bool operator()(const CandidateListInfo *left_group, const CandidateListInfo *right_group) const;
-    };
-
-    struct GroupVoteCompare {
-        bool operator()(const CandidateListInfo *left_group, const CandidateListInfo *right_group);
-    };
-
-    typedef set<const CandidateListInfo *, GroupCandidatesCompare> CompareNameCandidatesListInfoSet;
-    typedef priority_queue<const CandidateListInfo *, vector<const CandidateListInfo *>, GroupVoteCompare> CompareVoteCandidateListPriorityQueue;
-
     struct Strategy {
         CompareVoteCandidateListPriorityQueue groups_combination_info_;
         vector<Strategy *> possible_nash_equilibrium_;

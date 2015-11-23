@@ -9,7 +9,6 @@
 
 #include "open_list_party.h"
 
-using namespace election;
 
 namespace election {
 
