@@ -26,8 +26,8 @@ Profile election::Solver::ComputePayOff(Strategy *fixed_strategy,
     int sum_votes = first_party_->GetSumVotes() + second_party_->GetSumVotes();
     int remaining_seats = seats_num_;
     int quota = sum_votes / seats_num_;
-    CompareVoteGroupPriorityQueue fixed_strategy_info = fixed_strategy->groups_combination_info_;
-    CompareVoteGroupPriorityQueue stored_strategy_info = stored_strategy->groups_combination_info_;
+    CompareVoteCandidateListPriorityQueue fixed_strategy_info = fixed_strategy->groups_combination_info_;
+    CompareVoteCandidateListPriorityQueue stored_strategy_info = stored_strategy->groups_combination_info_;
 
     Profile profile;
 

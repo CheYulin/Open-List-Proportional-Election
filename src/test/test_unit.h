@@ -19,7 +19,7 @@ public:
 
     void TestGroupsInit(Solver *solver);
 
-    void TestFindCertainGroup(const Group &to_be_find_group, Party *party);
+    void TestFindCertainGroup(const CandidateListInfo *to_be_find_group, Party *party);
 
     void TestSeatNum(Solver *solver);
 

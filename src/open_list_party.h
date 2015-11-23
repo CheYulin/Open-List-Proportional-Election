@@ -25,28 +25,29 @@ namespace election {
         CandidateInfo(CandidateName candidate_name, CandidateVoteCount candidate_vote_count);
     };
 
-    struct Group {
+    struct CandidateListInfo {
         vector<CandidateId>* candidates_;
         int group_vote_count_;
 
-        Group();
-        ~Group();
+        CandidateListInfo();
+        CandidateListInfo(const CandidateListInfo& candidate_list_info);
+//        ~CandidateListInfo();
         string GetCandidatesAsString() const;
     };
 
     struct GroupCandidatesCompare {
-        bool operator()(const Group &left_group, const Group &right_group) const;
+        bool operator()(const CandidateListInfo *left_group, const CandidateListInfo *right_group) const;
     };
 
     struct GroupVoteCompare {
-        bool operator()(const Group *left_group, const Group *right_group);
+        bool operator()(const CandidateListInfo *left_group, const CandidateListInfo *right_group);
     };
 
-    typedef set<Group, GroupCandidatesCompare> CompareCandidatesGroupSet;
-    typedef priority_queue<const Group *, vector<const Group *>, GroupVoteCompare> CompareVoteGroupPriorityQueue;
+    typedef set<const CandidateListInfo *, GroupCandidatesCompare> CompareNameCandidatesListInfoSet;
+    typedef priority_queue<const CandidateListInfo *, vector<const CandidateListInfo *>, GroupVoteCompare> CompareVoteCandidateListPriorityQueue;
 
     struct Strategy {
-        CompareVoteGroupPriorityQueue groups_combination_info_;
+        CompareVoteCandidateListPriorityQueue groups_combination_info_;
         vector<Strategy *> possible_nash_equilibrium_;
         StrategyPayOff the_other_party_max_pay_off_;
         Party *party_;
@@ -67,7 +68,7 @@ namespace election {
     private:
         int sum_votes_;
         map<CandidateId, CandidateInfo> candidates_info_;
-        vector<CompareCandidatesGroupSet> groups_info_with_different_size_;
+        vector<CompareNameCandidatesListInfoSet> groups_info_with_different_size_;
         vector<SameSizeStrategies> strategies_with_different_size_;
 
         void InitGroupsAlternativesInfo();
@@ -86,14 +87,16 @@ namespace election {
     public:
         Party(vector<CandidateInfo> candidates_info, int seats_num);
 
+        ~Party();
+
         int GetSumVotes();
 
-        const Group *GetExactGroupPointer(const Group &to_be_found_group);
+        const CandidateListInfo *GetExactGroupPointer(const CandidateListInfo *to_be_found_group);
 
         void InitStrategies();
 
         //Auto Generated
-        const vector<CompareCandidatesGroupSet> &getGroups_info_with_different_size_() const {
+        const vector<CompareNameCandidatesListInfoSet> &getGroups_info_with_different_size_() const {
             return groups_info_with_different_size_;
         }
 
