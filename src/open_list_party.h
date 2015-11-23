@@ -10,6 +10,8 @@
 using namespace election;
 
 namespace election {
+    class Party;
+
     struct Strategy {
         CompareVoteCandidateListPriorityQueue groups_combination_info_;
         vector<Strategy *> possible_nash_equilibrium_;

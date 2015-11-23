@@ -25,6 +25,11 @@ namespace election {
         Party *first_party_;
         Party *second_party_;
 
+        void UpdateCertainCandidateListFirstRoundSeatNum(vector<CandidateListInfo *> &garbage_collector,
+                                                         CompareVoteCandidateListPriorityQueue &strategy_priority_queue,
+                                                         StrategyPayOff &strategy_payoff, int &remaining_seats,
+                                                         const int quota);
+
         void TraverseTheOtherPartyStrategies(vector<SameSizeStrategies> *store_different_size_strategies,
                                              Strategy *fixed_strategy);
 

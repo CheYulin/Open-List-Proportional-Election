@@ -15,8 +15,6 @@ namespace election{
     typedef string CandidateName;
     typedef double StrategyPayOff;
 
-    class Party;
-
     struct CandidateInfo {
         CandidateName candidate_name_;
         CandidateVoteCount candidate_vote_count_;
@@ -30,8 +28,14 @@ namespace election{
         vector<CandidateId>* candidates_;
         int group_vote_count_;
 
+        mutable int first_round_seat_num_;
+        mutable bool has_candidates_in_list_;
+        mutable int remaining_vote_num;
+
         CandidateListInfo();
+        CandidateListInfo(int remaining_vote_num);
         CandidateListInfo(const CandidateListInfo& candidate_list_info);
+//        CandidateListInfo* NewRemovedQuotaCandidateListInfo();
         string GetCandidatesAsString() const;
     };
 

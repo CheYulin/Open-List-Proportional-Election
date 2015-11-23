@@ -21,42 +21,82 @@ Solver::~Solver() {
     delete second_party_;
 }
 
+void Solver::UpdateCertainCandidateListFirstRoundSeatNum(vector<CandidateListInfo *> &garbage_collector,
+                                                         CompareVoteCandidateListPriorityQueue &strategy_priority_queue,
+                                                         StrategyPayOff &strategy_payoff, int &remaining_seats,
+                                                         const int quota) {
+    int stored_quota_info = strategy_priority_queue.top()->first_round_seat_num_;
+    const CandidateListInfo *candidate_list_info = strategy_priority_queue.top();
+    //First Time to Query This Candidate List
+    if (stored_quota_info == -1) {
+
+        int candidate_list_vote = candidate_list_info->group_vote_count_;
+        int candidate_person_num = candidate_list_info->candidates_->size();
+        int seat_num_wining_by_quota = min(candidate_list_vote / quota, candidate_person_num);
+
+        //1st Update Winning Seats Num By Quota (Deterministic)
+        candidate_list_info->first_round_seat_num_ = seat_num_wining_by_quota;
+        //2nd Judge If remains Candidates for Next Round
+        int remaining_vote = candidate_list_vote - seat_num_wining_by_quota * quota;
+        if (seat_num_wining_by_quota < candidate_person_num && remaining_vote > 0) {
+            candidate_list_info->has_candidates_in_list_ = true;
+            candidate_list_info->remaining_vote_num = remaining_vote;
+        }
+    }
+
+    //Then Read Its Value From Past Record
+    strategy_payoff += candidate_list_info->first_round_seat_num_;
+    remaining_seats -= candidate_list_info->first_round_seat_num_;
+    strategy_priority_queue.pop();
+    if (candidate_list_info->has_candidates_in_list_) {
+        CandidateListInfo *new_temp_candidate_list_info_for_next_rounds = new CandidateListInfo(
+                candidate_list_info->remaining_vote_num);
+        strategy_priority_queue.push(new_temp_candidate_list_info_for_next_rounds);
+        garbage_collector.push_back(new_temp_candidate_list_info_for_next_rounds);
+    }
+
+}
+
 Profile election::Solver::ComputePayOff(Strategy *fixed_strategy,
                                         Strategy *stored_strategy) {
     int sum_votes = first_party_->GetSumVotes() + second_party_->GetSumVotes();
     int remaining_seats = seats_num_;
     int quota = sum_votes / seats_num_;
-    CompareVoteCandidateListPriorityQueue fixed_strategy_info = fixed_strategy->groups_combination_info_;
-    CompareVoteCandidateListPriorityQueue stored_strategy_info = stored_strategy->groups_combination_info_;
+    CompareVoteCandidateListPriorityQueue fixed_strategy_priority_queue = fixed_strategy->groups_combination_info_;
+    CompareVoteCandidateListPriorityQueue stored_strategy_priority_queue = stored_strategy->groups_combination_info_;
 
     Profile profile;
+    vector<CandidateListInfo *> garbage_collector;
 
     //First Round with Quota
-    while (!fixed_strategy_info.empty() && fixed_strategy_info.top()->group_vote_count_ >= quota) {
-        fixed_strategy_info.pop();
-        profile.fixed_strategy_payoff_ += 1;
-        remaining_seats--;
+    while (!fixed_strategy_priority_queue.empty() && fixed_strategy_priority_queue.top()->group_vote_count_ >= quota) {
+        UpdateCertainCandidateListFirstRoundSeatNum(garbage_collector, fixed_strategy_priority_queue,
+                                                    profile.fixed_strategy_payoff_, remaining_seats, quota);
     }
-    while (!stored_strategy_info.empty() && stored_strategy_info.top()->group_vote_count_ >= quota) {
-        stored_strategy_info.pop();
-        profile.store_strategy_payoff_ += 1;
-        remaining_seats--;
+    while (!stored_strategy_priority_queue.empty() &&
+           stored_strategy_priority_queue.top()->group_vote_count_ >= quota) {
+        UpdateCertainCandidateListFirstRoundSeatNum(garbage_collector, stored_strategy_priority_queue,
+                                                    profile.store_strategy_payoff_, remaining_seats, quota);
     }
 
     //Next Several Rounds
-    while (remaining_seats > 0) {
-        int max_vote_fixed_strategy = fixed_strategy_info.empty() ? 0 : fixed_strategy_info.top()->group_vote_count_;
-        int max_vote_stored_strategy = stored_strategy_info.empty() ? 0 : stored_strategy_info.top()->group_vote_count_;
+    while (remaining_seats > 0 && (!fixed_strategy_priority_queue.empty() || !stored_strategy_priority_queue.empty())) {
+        int max_vote_fixed_strategy = fixed_strategy_priority_queue.empty() ? 0
+                                                                            : fixed_strategy_priority_queue.top()->group_vote_count_;
+        int max_vote_stored_strategy = stored_strategy_priority_queue.empty() ? 0
+                                                                              : stored_strategy_priority_queue.top()->group_vote_count_;
         int max_vote = max(max_vote_fixed_strategy, max_vote_stored_strategy);
 
         int fixed_strategy_pop_num = 0;
         int stored_strategy_pop_num = 0;
-        while (!fixed_strategy_info.empty() && fixed_strategy_info.top()->group_vote_count_ == max_vote) {
-            fixed_strategy_info.pop();
+        while (!fixed_strategy_priority_queue.empty() &&
+               fixed_strategy_priority_queue.top()->group_vote_count_ == max_vote) {
+            fixed_strategy_priority_queue.pop();
             fixed_strategy_pop_num++;
         }
-        while (!stored_strategy_info.empty() && stored_strategy_info.top()->group_vote_count_ == max_vote) {
-            stored_strategy_info.pop();
+        while (!stored_strategy_priority_queue.empty() &&
+               stored_strategy_priority_queue.top()->group_vote_count_ == max_vote) {
+            stored_strategy_priority_queue.pop();
             stored_strategy_pop_num++;
         }
         int sum_pop_num = fixed_strategy_pop_num + stored_strategy_pop_num;
@@ -72,6 +112,10 @@ Profile election::Solver::ComputePayOff(Strategy *fixed_strategy,
         }
     }
 
+    //Garbage Collection
+    for (CandidateListInfo *candidate_list_info :garbage_collector) {
+        delete candidate_list_info;
+    }
     return profile;
 }
 
@@ -94,10 +138,10 @@ void Solver::TraverseTheOtherPartyStrategies(vector<SameSizeStrategies> *store_d
         for (Strategy &stored_strategy: store_same_size_strategies) {
 
             //Two Party Give Partition Less Than Seats Num : Should Be Excluded
-            if (fixed_strategy->groups_combination_info_.size() + stored_strategy.groups_combination_info_.size() <
-                seats_num_) {
-                break;
-            }
+//            if (fixed_strategy->groups_combination_info_.size() + stored_strategy.groups_combination_info_.size() <
+//                seats_num_) {
+//                break;
+//            }
 
             Profile profile = ComputePayOff(fixed_strategy, &stored_strategy);
 
@@ -151,5 +195,6 @@ void Solver::PrintNashEquilibrium() {
 
 
 }
+
 
 

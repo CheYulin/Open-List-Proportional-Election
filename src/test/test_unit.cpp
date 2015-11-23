@@ -144,10 +144,10 @@ void BruteForceSolver::TraverseProfileToCheckNashEquilibrium(
             for (SameSizeStrategies &store_same_size_strategies : *store_different_size_strategies) {
                 for (Strategy &stored_strategy: store_same_size_strategies) {
                     //Two Party Give Partition Less Than Seats Num : Should Be Excluded
-                    if (fixed_strategy.groups_combination_info_.size() +
-                        stored_strategy.groups_combination_info_.size() < getSeats_num_()) {
-                        break;
-                    }
+//                    if (fixed_strategy.groups_combination_info_.size() +
+//                        stored_strategy.groups_combination_info_.size() < getSeats_num_()) {
+//                        break;
+//                    }
                     Profile profile = ComputePayOff(&fixed_strategy, &stored_strategy);
                     if (profile.store_strategy_payoff_ == fixed_strategy.the_other_party_max_pay_off_ &&
                         profile.fixed_strategy_payoff_ == stored_strategy.the_other_party_max_pay_off_) {
