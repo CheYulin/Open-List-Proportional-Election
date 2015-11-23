@@ -73,14 +73,14 @@ void TestUnit::TestPayoffCompute(Party *store_nash_equilibrium_party, Party *fix
             for (SameSizeStrategies &store_same_size_strategies : *store_different_size_strategies) {
                 for (Strategy &stored_strategy: store_same_size_strategies) {
                     //Two Party Give Partition Less Than Seats Num : Should Be Excluded
-                    if (fixed_strategy.groups_combination_info_.size() +
-                        stored_strategy.groups_combination_info_.size() < solver->getSeats_num_()) {
-//                        cout << "Impossible To be Nash Equilibrium With Less Than Seat Num Groups" << endl;
-                        break;
-                    }
+//                    if (fixed_strategy.groups_combination_info_.size() +
+//                        stored_strategy.groups_combination_info_.size() < solver->getSeats_num_()) {
+////                        cout << "Impossible To be Nash Equilibrium With Less Than Seat Num Groups" << endl;
+//                        break;
+//                    }
                     Profile profile = solver->ComputePayOff(&fixed_strategy, &stored_strategy);
-                    if (solver->getFirst_party_()->getGroups_info_with_different_size_().size() <= 5 &&
-                        solver->getSecond_party_()->getGroups_info_with_different_size_().size() <= 5) {
+                    if (solver->getFirst_party_()->getGroups_info_with_different_size_().size() <= 8 &&
+                        solver->getSecond_party_()->getGroups_info_with_different_size_().size() <= 8 ) {
                         cout << setiosflags(ios::fixed) << setprecision(2);
                         std::ios_base::sync_with_stdio(false);
                         stringstream string_builder;
@@ -122,10 +122,10 @@ void BruteForceSolver::TraverseStrategyFromPerspectiveOfOneParty(
             for (SameSizeStrategies &store_same_size_strategies : *store_different_size_strategies) {
                 for (Strategy &stored_strategy: store_same_size_strategies) {
                     //Two Party Give Partition Less Than Seats Num : Should Be Excluded
-                    if (fixed_strategy.groups_combination_info_.size() +
-                        stored_strategy.groups_combination_info_.size() < getSeats_num_()) {
-                        break;
-                    }
+//                    if (fixed_strategy.groups_combination_info_.size() +
+//                        stored_strategy.groups_combination_info_.size() < getSeats_num_()) {
+//                        break;
+//                    }
                     Profile profile = ComputePayOff(&fixed_strategy, &stored_strategy);
                     if (profile.store_strategy_payoff_ > fixed_strategy.the_other_party_max_pay_off_) {
                         fixed_strategy.the_other_party_max_pay_off_ = profile.store_strategy_payoff_;

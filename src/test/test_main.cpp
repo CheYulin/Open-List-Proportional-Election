@@ -15,13 +15,13 @@ int main(int argc, char* argv[]) {
     test_unit.TestGroupsInit(my_solver);
 
     cout << endl << "First Party" << endl;
-    test_unit.TestStrategiesInit(my_solver->getFirst_party_());
+//    test_unit.TestStrategiesInit(my_solver->getFirst_party_());
     cout << endl << "Second Party" << endl;
-    test_unit.TestStrategiesInit(my_solver->getSecond_party_());
+//    test_unit.TestStrategiesInit(my_solver->getSecond_party_());
 
-    test_unit.TestPayoffCompute(my_solver->getFirst_party_(), my_solver->getSecond_party_(), my_solver);
+//    test_unit.TestPayoffCompute(my_solver->getFirst_party_(), my_solver->getSecond_party_(), my_solver);
     cout << endl << endl << "Next : Nash Equ" << endl << endl;
-    test_unit.TestNashEquilibriumWithBruteForceSolver(my_solver);
+//    test_unit.TestNashEquilibriumWithBruteForceSolver(my_solver);
 
     delete my_solver;
 
