@@ -65,7 +65,6 @@ int Party::GetSumVotes() {
 
 void Party::InitGroupsAlternativesInfo() {
     int party_size = candidates_info_.size();
-
     //First Initialize First Layer Groups with Size One
     groups_info_with_different_size_ = vector<CompareNameCandidatesListInfoSet>();
     CompareNameCandidatesListInfoSet first_groups_with_size_one = CompareNameCandidatesListInfoSet();
@@ -78,6 +77,9 @@ void Party::InitGroupsAlternativesInfo() {
         first_groups_with_size_one_info.push_back(candidate_list_info);
     }
     groups_info_with_different_size_.push_back(first_groups_with_size_one);
+
+    if(party_size ==1)
+        return;
 
     //Next Deal with Groups with Size more than One
     CompareNameCandidatesListInfoSet former_groups_with_same_size = first_groups_with_size_one;
@@ -152,6 +154,7 @@ void Party::TransformPartitionIntoPriorityQueueGetStrategies(DifferentSizePartit
 }
 
 void Party::InitStrategies() {
+
     CandidateId candidate_id = 1;
 
     GroupInPartition group_in_partition;
@@ -169,8 +172,14 @@ void Party::InitStrategies() {
     DifferentSizePartitions *former_different_size_partitions = first_different_size_partitions;
     DifferentSizePartitions *latter_different_size_partitions = nullptr;
 
-    //Iteration between Different Max Party Size
+
     int party_size = candidates_info_.size();
+    if(party_size ==1){
+        TransformPartitionIntoPriorityQueueGetStrategies(first_different_size_partitions);
+        return ;
+    }
+
+    //Iteration between Different Max Party Size
     for (int latter_party_size = 2; latter_party_size <= party_size; latter_party_size++) {
         latter_different_size_partitions = new DifferentSizePartitions(latter_party_size);
         CandidateId latter_candidate_id = latter_party_size;
