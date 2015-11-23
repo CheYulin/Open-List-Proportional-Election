@@ -18,7 +18,7 @@ void TestUnit::TestPartitionDetail(Party *party) {
     for (CompareCandidatesGroupSet sets: party->getGroups_info_with_different_size_()) {
         for (Group data: sets) {
             cout << "(";
-            for (int integer : data.candidates_) {
+            for (int integer : *data.candidates_) {
                 cout << integer;
             }
             cout << "," << data.group_vote_count_ << ")" << "  ";

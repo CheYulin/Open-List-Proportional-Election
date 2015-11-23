@@ -26,9 +26,11 @@ namespace election {
     };
 
     struct Group {
-        vector<CandidateId> candidates_;
+        vector<CandidateId>* candidates_;
         int group_vote_count_;
 
+        Group();
+        ~Group();
         string GetCandidatesAsString() const;
     };
 

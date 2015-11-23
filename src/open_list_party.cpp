@@ -17,21 +17,21 @@ CandidateInfo::CandidateInfo(CandidateName candidate_name, CandidateVoteCount ca
 //Group Related
 string Group::GetCandidatesAsString() const {
     stringstream string_builder;
-    for (CandidateId candidate_id: candidates_) {
+    for (CandidateId candidate_id: *candidates_) {
         string_builder << candidate_id;
     }
     return string_builder.str();
 }
 
 bool GroupCandidatesCompare::operator()(const Group &left_group, const Group &right_group) const {
-    int left_collection_size = left_group.candidates_.size();
-    int right_collection_size = right_group.candidates_.size();
+    int left_collection_size = left_group.candidates_->size();
+    int right_collection_size = right_group.candidates_->size();
     int max_size = left_collection_size < right_collection_size ? left_collection_size : right_collection_size;
     for (int i = 0; i < max_size; i++) {
-        if (left_group.candidates_[i] < right_group.candidates_[i]) {
+        if ((*left_group.candidates_)[i] < (*right_group.candidates_)[i]) {
             return true;
         }
-        else if (left_group.candidates_[i] > right_group.candidates_[i]) {
+        else if ((*left_group.candidates_)[i] > (*right_group.candidates_)[i]) {
             return false;
         }
     }
@@ -61,9 +61,9 @@ string Strategy::ToString() {
     }
     for (Group group : compare_candidate_group_set) {
         string_builder << "{";
-        for (int i = 0; i < group.candidates_.size(); i++) {
-            string_builder << party_->getCandidates_info_().at(group.candidates_[i]).candidate_name_;
-            if (i != group.candidates_.size() - 1) {
+        for (int i = 0; i < group.candidates_->size(); i++) {
+            string_builder << party_->getCandidates_info_().at((*group.candidates_)[i]).candidate_name_;
+            if (i != group.candidates_->size() - 1) {
                 string_builder << ",";
             }
         }
@@ -103,7 +103,7 @@ void Party::InitGroupsAlternativesInfo() {
     vector<Group> first_groups_with_size_one_info = vector<Group>();
     for (auto pair : candidates_info_) {
         Group data = Group();
-        data.candidates_.push_back(pair.first);
+        data.candidates_->push_back(pair.first);
         data.group_vote_count_ = pair.second.candidate_vote_count_;
         first_groups_with_size_one.insert(data);
         first_groups_with_size_one_info.push_back(data);
@@ -113,13 +113,13 @@ void Party::InitGroupsAlternativesInfo() {
     //Next Deal with Groups with Size more than One
     CompareCandidatesGroupSet former_groups_with_same_size = first_groups_with_size_one;
     CompareCandidatesGroupSet latter_groups_with_same_size = CompareCandidatesGroupSet();
-    int max_value = first_groups_with_size_one_info[first_groups_with_size_one_info.size() - 1].candidates_[0];
+    int max_value = (*first_groups_with_size_one_info[first_groups_with_size_one_info.size() - 1].candidates_)[0];
     for (int i = 1; i < party_size; i++) {
         for (Group former_data: former_groups_with_same_size) {
-            int last_value = former_data.candidates_[former_data.candidates_.size() - 1];
+            int last_value = (*former_data.candidates_)[former_data.candidates_->size() - 1];
             for (int j = last_value + 1; j <= max_value; j++) {
                 Group new_data = former_data;
-                new_data.candidates_.push_back(j);
+                new_data.candidates_->push_back(j);
                 new_data.group_vote_count_ += first_groups_with_size_one_info[j - 1].group_vote_count_;
                 latter_groups_with_same_size.insert(new_data);
             }
@@ -132,7 +132,7 @@ void Party::InitGroupsAlternativesInfo() {
 }
 
 const Group *Party::GetExactGroupPointer(const Group &to_be_found_group) {
-    int size = to_be_found_group.candidates_.size();
+    int size = to_be_found_group.candidates_->size();
     CompareCandidatesGroupSet::iterator iter = groups_info_with_different_size_[size - 1].find(to_be_found_group);
 
     return &(*iter);
@@ -169,7 +169,7 @@ void Party::TransformPartitionIntoPriorityQueueGetStrategies(DifferentSizePartit
             for (GroupInPartition group_in_partition : partition) {
                 to_be_find_group = new Group();
                 for (CandidateId candidate_id: group_in_partition) {
-                    to_be_find_group->candidates_.push_back(candidate_id);
+                    to_be_find_group->candidates_->push_back(candidate_id);
                 }
                 strategy->groups_combination_info_.push(GetExactGroupPointer(*to_be_find_group));
                 delete to_be_find_group;
@@ -229,4 +229,10 @@ void Party::InitStrategies() {
 }
 
 
+Group::Group() {
+    candidates_ = new vector<CandidateId>();
+}
 
+Group::~Group() {
+    delete  candidates_;
+}
