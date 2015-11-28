@@ -17,7 +17,7 @@ namespace election {
         vector<Strategy *> possible_nash_equilibrium_;
         StrategyPayOff the_other_party_max_pay_off_;
         Party *party_;
-
+        bool is_possible_nash_equilibrium;
         Strategy(Party *party);
 
         string ToString();

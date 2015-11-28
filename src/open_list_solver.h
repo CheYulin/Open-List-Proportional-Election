@@ -42,7 +42,7 @@ namespace election {
 
         Profile ComputePayOff(Strategy *fixed_strategy, Strategy *stored_strategy);
 
-        void PrintNashEquilibrium();
+        virtual void PrintNashEquilibrium();
 
         //Auto Generated
         Party *getFirst_party_() const {
@@ -56,5 +56,16 @@ namespace election {
         int getSeats_num_() const {
             return seats_num_;
         }
+    };
+
+    class AlphaBetaPruningSolver:public Solver{
+    public:
+        void TraverseUsingPruning(vector<SameSizeStrategies> *beta_strategies,vector<SameSizeStrategies> * alpha_strategies);
+        AlphaBetaPruningSolver(Party *first_party, Party *second_party, int seats_num);
+
+        virtual void PrintNashEquilibrium();
+
+        int TraverseBetaStrategies(vector<SameSizeStrategies> *beta_strategies, Strategy *alpha_strategy,
+                                    int *max_of_minvals);
     };
 }

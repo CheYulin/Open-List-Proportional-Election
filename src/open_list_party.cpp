@@ -7,7 +7,7 @@
 using namespace election;
 
 //Strategy Related
-Strategy::Strategy(Party *party) : the_other_party_max_pay_off_(-1), party_(party) {
+Strategy::Strategy(Party *party) : the_other_party_max_pay_off_(-1), party_(party), is_possible_nash_equilibrium(false){
 }
 
 string Strategy::ToString() {
