@@ -8,20 +8,24 @@ int main(int argc, char* argv[]) {
     IOProcessor my_io_processor;
     Solver *my_solver = my_io_processor.GetSolver(in_file_name);
 
-    TestUnit test_unit;
-
-    test_unit.TestSeatNum(my_solver);
-
-    test_unit.TestGroupsInit(my_solver);
-
-    cout << endl << "First Party" << endl;
-//    test_unit.TestStrategiesInit(my_solver->getFirst_party_());
-    cout << endl << "Second Party" << endl;
-//    test_unit.TestStrategiesInit(my_solver->getSecond_party_());
-
-//    test_unit.TestPayoffCompute(my_solver->getFirst_party_(), my_solver->getSecond_party_(), my_solver);
-    cout << endl << endl << "Next : Nash Equ" << endl << endl;
+//    TestUnit test_unit;
+//
+//    test_unit.TestSeatNum(my_solver);
+//
+//    test_unit.TestGroupsInit(my_solver);
+//
+//    cout << endl << "First Party" << endl;
+////    test_unit.TestStrategiesInit(my_solver->getFirst_party_());
+//    cout << endl << "Second Party" << endl;
+////    test_unit.TestStrategiesInit(my_solver->getSecond_party_());
+//
+////    test_unit.TestPayoffCompute(my_solver->getFirst_party_(), my_solver->getSecond_party_(), my_solver);
+//    cout << endl << endl << "Next : Nash Equ" << endl << endl;
 //    test_unit.TestNashEquilibriumWithBruteForceSolver(my_solver);
+//    my_solver->getFirst_party_()
+//    Party *party_one = new Party(*parent_solver->getFirst_party_());
+//    Party *party_two = new Party(*parent_solver->getSecond_party_());
+//    Solver *alpha_beta_solver = new AlphaBetaPruningSolver(my_solver->getFirst_party_(),my_solver->getSecond_party_(),my_solver->getSeats_num_());
 
     delete my_solver;
 

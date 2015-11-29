@@ -7,7 +7,11 @@ int main(int argc, char* argv[]) {
     Solver *my_solver = my_io_processor.GetSolver(in_file_name);
     my_solver->getFirst_party_()->InitStrategies();
     my_solver->getSecond_party_()->InitStrategies();
-    my_solver->PrintNashEquilibrium();
+    Party *first_party = new Party(*my_solver->getFirst_party_());
+    Party *second_party = new Party(*my_solver->getSecond_party_());
+    Solver *alpha_beta_solver = new AlphaBetaPruningSolver(first_party,second_party,my_solver->getSeats_num_());
+    alpha_beta_solver->PrintNashEquilibrium();
+//    my_solver->PrintNashEquilibrium();
     delete my_solver;
     return 0;
 }

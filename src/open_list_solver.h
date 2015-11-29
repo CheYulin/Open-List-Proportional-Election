@@ -60,12 +60,12 @@ namespace election {
 
     class AlphaBetaPruningSolver:public Solver{
     public:
-        void TraverseUsingPruning(vector<SameSizeStrategies> *beta_strategies,vector<SameSizeStrategies> * alpha_strategies);
+        int TraverseUsingPruning(vector<SameSizeStrategies> *beta_strategies,vector<SameSizeStrategies> * alpha_strategies);
         AlphaBetaPruningSolver(Party *first_party, Party *second_party, int seats_num);
 
         virtual void PrintNashEquilibrium();
 
         int TraverseBetaStrategies(vector<SameSizeStrategies> *beta_strategies, Strategy *alpha_strategy,
-                                    int *max_of_minvals);
+                                    int &max_of_mins);
     };
 }
