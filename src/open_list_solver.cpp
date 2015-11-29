@@ -116,9 +116,12 @@ Profile election::Solver::ComputePayOff(Strategy *fixed_strategy,
     }
 
     //Garbage Collection
-    for (CandidateListInfo *candidate_list_info :garbage_collector) {
+    for (vector<CandidateListInfo *>::iterator my_iterator = garbage_collector.begin();
+         my_iterator != garbage_collector.end(); my_iterator++) {
+        CandidateListInfo *candidate_list_info = *my_iterator;
         delete candidate_list_info;
     }
+
     return profile;
 }
 
@@ -127,8 +130,12 @@ Profile election::Solver::ComputePayOff(Strategy *fixed_strategy,
 void Solver::FindNashEquilibrium(Party *store_nash_equilibrium_party, Party *fixed_for_traverse_party) {
     vector<SameSizeStrategies> *fixed_different_size_strategies = &fixed_for_traverse_party->getStrategies_with_different_size_();
     vector<SameSizeStrategies> *store_different_size_strategies = &store_nash_equilibrium_party->getStrategies_with_different_size_();
-    for (SameSizeStrategies &fixed_same_size_strategies : *fixed_different_size_strategies) {
-        for (Strategy &fixed_strategy : fixed_same_size_strategies) {
+    for (vector<SameSizeStrategies>::iterator same_size_partition_iterator = fixed_different_size_strategies->begin();
+         same_size_partition_iterator != fixed_different_size_strategies->end(); same_size_partition_iterator++) {
+        SameSizeStrategies &fixed_same_size_strategies = *same_size_partition_iterator;
+        for (SameSizeStrategies::iterator strategy_iterator = same_size_partition_iterator->begin();
+             strategy_iterator != same_size_partition_iterator->end(); strategy_iterator++) {
+            Strategy &fixed_strategy = *strategy_iterator;
             TraverseTheOtherPartyStrategies(store_different_size_strategies, &fixed_strategy);
         }
     }
@@ -137,14 +144,10 @@ void Solver::FindNashEquilibrium(Party *store_nash_equilibrium_party, Party *fix
 void Solver::TraverseTheOtherPartyStrategies(vector<SameSizeStrategies> *store_different_size_strategies,
                                              Strategy *fixed_strategy) {
     vector<Strategy *> possible_to_be_updated_stored_strategies;
-    for (SameSizeStrategies &store_same_size_strategies : *store_different_size_strategies) {
-        for (Strategy &stored_strategy: store_same_size_strategies) {
-
-            //Two Party Give Partition Less Than Seats Num : Should Be Excluded
-//            if (fixed_strategy->groups_combination_info_.size() + stored_strategy.groups_combination_info_.size() <
-//                seats_num_) {
-//                break;
-//            }
+    for(vector<SameSizeStrategies>::iterator same_size_strategy_iterator = store_different_size_strategies->begin();same_size_strategy_iterator!=store_different_size_strategies->end();same_size_strategy_iterator++){
+        SameSizeStrategies &store_same_size_strategies = * same_size_strategy_iterator;
+        for(SameSizeStrategies::iterator strategy_iterator =store_same_size_strategies.begin(); strategy_iterator!=store_same_size_strategies.end();strategy_iterator++){
+            Strategy & stored_strategy = *strategy_iterator;
 
             Profile profile = ComputePayOff(fixed_strategy, &stored_strategy);
 
@@ -172,7 +175,8 @@ void Solver::TraverseTheOtherPartyStrategies(vector<SameSizeStrategies> *store_d
     }
 
     //Update Possible Nash Equilibrium
-    for (Strategy *&to_be_updated_store_strategies :possible_to_be_updated_stored_strategies) {
+    for(vector<Strategy*>::iterator my_iterator = possible_to_be_updated_stored_strategies.begin(); my_iterator!= possible_to_be_updated_stored_strategies.end();my_iterator++){
+        Strategy *& to_be_updated_store_strategies =*my_iterator;
         to_be_updated_store_strategies->possible_nash_equilibrium_.push_back(fixed_strategy);
     }
 }
@@ -182,9 +186,12 @@ void Solver::PrintNashEquilibrium() {
     vector<SameSizeStrategies> *store_different_size_strategies = &first_party_->getStrategies_with_different_size_();
     std::ios_base::sync_with_stdio(false);
     cout << setiosflags(ios::fixed) << setprecision(2);
-    for (SameSizeStrategies &store_same_size_strategies : *store_different_size_strategies) {
-        for (Strategy &stored_strategy: store_same_size_strategies) {
-            for (Strategy *&fixed_strategy : stored_strategy.possible_nash_equilibrium_) {
+    for(vector<SameSizeStrategies>::iterator same_size_strategies_iterator = store_different_size_strategies->begin(); same_size_strategies_iterator!=store_different_size_strategies->end();same_size_strategies_iterator++){
+        SameSizeStrategies & store_same_size_strategies = *same_size_strategies_iterator;
+        for(SameSizeStrategies::iterator strategy_iterator=store_same_size_strategies.begin();strategy_iterator!=store_same_size_strategies.end();strategy_iterator++){
+            Strategy&stored_strategy = *strategy_iterator;
+            for(vector<Strategy*>::iterator my_iterator=stored_strategy.possible_nash_equilibrium_.begin(); my_iterator!=stored_strategy.possible_nash_equilibrium_.end();my_iterator++){
+                Strategy *&fixed_strategy =* my_iterator;
                 stringstream string_builder;
                 string_builder << "({" << stored_strategy.ToString() << "," << fixed_strategy->ToString() << "})" <<
                 "\t";
@@ -192,11 +199,8 @@ void Solver::PrintNashEquilibrium() {
                 stored_strategy.the_other_party_max_pay_off_ << ")";
                 cout << string_builder.str() << endl;
             }
-
         }
     }
-
-
 }
 
 
