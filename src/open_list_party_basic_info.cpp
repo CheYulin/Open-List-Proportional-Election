@@ -15,11 +15,12 @@ CandidateInfo::CandidateInfo(CandidateName candidate_name, CandidateVoteCount ca
 }
 
 
-
 //CandidateListInfo Related
 string CandidateListInfo::GetCandidatesAsString() const {
     stringstream string_builder;
-    for (CandidateId candidate_id: *candidates_) {
+    for (vector<CandidateId>::iterator candidate_id_iterator = (candidates_)->begin();
+         candidate_id_iterator != candidates_->end(); candidate_id_iterator++) {
+        CandidateId candidate_id = *candidate_id_iterator;
         string_builder << candidate_id;
     }
     return string_builder.str();
@@ -29,14 +30,16 @@ CandidateListInfo::CandidateListInfo() : first_round_seat_num_(-1), has_candidat
     candidates_ = new vector<CandidateId>();
 }
 
-CandidateListInfo::CandidateListInfo(int remaining_vote_num) :group_vote_count_(remaining_vote_num){
+CandidateListInfo::CandidateListInfo(int remaining_vote_num) : group_vote_count_(remaining_vote_num) {
 
 }
 
 CandidateListInfo::CandidateListInfo(const CandidateListInfo &candidate_list_info) : group_vote_count_(
         candidate_list_info.group_vote_count_), first_round_seat_num_(-1), has_candidates_in_list_(true) {
     candidates_ = new vector<CandidateId>();
-    for (auto candidate_id : *candidate_list_info.candidates_) {
+
+    for(vector<CandidateId>::iterator candidate_id_iterator = candidate_list_info.candidates_->begin(); candidate_id_iterator != candidate_list_info.candidates_->end();candidate_id_iterator++){
+        CandidateId candidate_id = * candidate_id_iterator;
         candidates_->push_back(candidate_id);
     }
 }
@@ -54,11 +57,7 @@ bool GroupCandidatesCompare::operator()(const CandidateListInfo *left_group,
             return false;
         }
     }
-    if (max_size < right_collection_size) {
-        return true;
-    }
-    else
-        return false;
+    return max_size < right_collection_size;
 }
 
 bool GroupVoteCompare::operator()(const CandidateListInfo *left_group, const CandidateListInfo *right_group) {

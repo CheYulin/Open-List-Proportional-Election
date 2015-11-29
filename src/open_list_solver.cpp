@@ -200,10 +200,7 @@ void Solver::PrintNashEquilibrium() {
 }
 
 
-AlphaBetaPruningSolver::AlphaBetaPruningSolver(Party *first_party, Party *second_party, int seats_num) : Solver(
-        first_party, second_party, seats_num) {
 
-}
 
 int AlphaBetaPruningSolver::TraverseUsingPruning(vector<SameSizeStrategies> *beta_strategies,
                                                   vector<SameSizeStrategies> *alpha_strategies) {
@@ -267,6 +264,7 @@ int AlphaBetaPruningSolver::TraverseBetaStrategies(vector<SameSizeStrategies> *b
 }
 
 
+
 void AlphaBetaPruningSolver::PrintNashEquilibrium() {
 //    Solver::PrintNashEquilibrium();
     int alpha_max1 = TraverseUsingPruning(&getFirst_party_()->getStrategies_with_different_size_(),&getSecond_party_()->getStrategies_with_different_size_());
@@ -291,4 +289,8 @@ void AlphaBetaPruningSolver::PrintNashEquilibrium() {
 
         }
     }
+}
+
+AlphaBetaPruningSolver::AlphaBetaPruningSolver(Party *first_party, Party *second_party, int seats_num):Solver(first_party,second_party,seats_num) {
+
 }

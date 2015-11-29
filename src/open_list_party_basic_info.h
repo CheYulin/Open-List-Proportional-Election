@@ -35,7 +35,6 @@ namespace election{
         CandidateListInfo();
         CandidateListInfo(int remaining_vote_num);
         CandidateListInfo(const CandidateListInfo& candidate_list_info);
-//        CandidateListInfo* NewRemovedQuotaCandidateListInfo();
         string GetCandidatesAsString() const;
     };
 
