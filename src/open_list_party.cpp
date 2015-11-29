@@ -161,7 +161,8 @@ void Party::TransformPartitionIntoPriorityQueueGetStrategies(DifferentSizePartit
                  group_iterator != partition.end(); group_iterator++) {
                 GroupInPartition group_in_partition = *group_iterator;
                 to_be_find_group = new CandidateListInfo();
-                for (CandidateId candidate_id: group_in_partition) {
+                for(GroupInPartition::iterator my_iterator=group_in_partition.begin(); my_iterator!=group_in_partition.end();my_iterator++){
+                    CandidateId candidate_id=*my_iterator;
                     to_be_find_group->candidates_->push_back(candidate_id);
                 }
                 strategy->groups_combination_info_.push(GetExactGroupPointer(to_be_find_group));
@@ -190,7 +191,7 @@ void Party::InitStrategies() {
     first_different_size_partitions->push_back(same_size_partitions);
 
     DifferentSizePartitions *former_different_size_partitions = first_different_size_partitions;
-    DifferentSizePartitions *latter_different_size_partitions = nullptr;
+    DifferentSizePartitions *latter_different_size_partitions = NULL;
 
     int party_size = candidates_info_.size();
     if (party_size == 1) {
@@ -210,7 +211,8 @@ void Party::InitStrategies() {
             [former_party_partition_possible_size - 1];
             SameSizePartitions *latter_same_size_partitions_i_plus_one = &(*latter_different_size_partitions)
             [former_party_partition_possible_size];
-            for (Partition former_partition: *former_same_size_partitions) {
+            for(SameSizePartitions::iterator my_iterator = former_same_size_partitions->begin();my_iterator!=former_same_size_partitions->end();my_iterator++){
+                Partition former_partition =*my_iterator;
                 AddNewCandidateIdToMakeEqualSizePartition(former_partition, latter_candidate_id,
                                                           latter_same_size_partitions_i);
                 AddNewCandidateIdToMakeSizePlusOnePartition(former_partition, latter_candidate_id,

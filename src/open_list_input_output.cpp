@@ -5,8 +5,13 @@
 #include "open_list_input_output.h"
 
 vector<CandidateInfo> IOProcessor::GetPartyCandidates(string &line) {
-    regex split_pattern("\\)|,|\\(");
-    line = regex_replace(line, split_pattern, " ");
+//    regex split_pattern("\\)|,|\\(");
+//    line = regex_replace(line, split_pattern, " ");
+    for(int i=0; i<line.size();i++){
+       if(line[i] == '(' || line[i] == ')' || line[i] == ','){
+            line[i]= ' ';
+       }
+    }
     stringstream string_stream;
     string_stream.clear();
     string_stream.str(line);

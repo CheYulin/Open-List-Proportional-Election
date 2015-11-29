@@ -7,6 +7,7 @@
 
 #endif //SRC_OPEN_LIST_INCLUDES_H_H
 
+#include "stdlib.h"
 #include <set>
 #include <map>
 #include <vector>
@@ -15,7 +16,6 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <regex>
 #include <iomanip>
 
 using namespace std;
