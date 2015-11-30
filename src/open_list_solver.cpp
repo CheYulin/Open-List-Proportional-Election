@@ -390,29 +390,35 @@ AlphaBetaPruningSolverWithBits::AlphaBetaPruningSolverWithBits(Party *first_part
 
 void AlphaBetaPruningSolverWithBits::PrintNashEquilibrium() {
     //second_party_strategies_ as Row
-    int second_party_alpha_max = TraverseUsingPruning(first_party_strategies_,second_party_strategies_,first_alpha_possible_nash_bitmap);
-    int first_party_alpha_max =TraverseUsingPruning(second_party_strategies_,first_party_strategies_,second_alpha_possible_nash_bitmap);
-    unsigned char *& second_party_as_row_profiles = first_alpha_possible_nash_bitmap;
-    unsigned char *& first_party_as_row_profiles =second_alpha_possible_nash_bitmap;
+    int second_party_alpha_max = TraverseUsingPruning(first_party_strategies_, second_party_strategies_,
+                                                      first_alpha_possible_nash_bitmap);
+    int first_party_alpha_max = TraverseUsingPruning(second_party_strategies_, first_party_strategies_,
+                                                     second_alpha_possible_nash_bitmap);
+    unsigned char *&second_party_as_row_profiles = first_alpha_possible_nash_bitmap;
+    unsigned char *&first_party_as_row_profiles = second_alpha_possible_nash_bitmap;
     size_t first_party_size = first_party_strategies_.size();
     size_t second_party_size = second_party_strategies_.size();
     size_t all_profile_size = first_party_size * second_party_size;
-    for(size_t first_party_bit_index =0; first_party_bit_index < all_profile_size; first_party_bit_index++){
+    for (size_t first_party_bit_index = 0; first_party_bit_index < all_profile_size; first_party_bit_index++) {
         size_t first_party_as_row_char_index = first_party_bit_index / BYTE_SIZE;
         size_t first_party_as_row_index_in_eight_bits = first_party_bit_index % BYTE_SIZE;
 
         size_t first_party_row_num = first_party_bit_index / second_party_size;
         size_t first_party_col_num = first_party_bit_index % second_party_size;
 
-        size_t second_party_col_num =first_party_row_num;
-        size_t second_party_row_num=first_party_col_num;
+        size_t second_party_col_num = first_party_row_num;
+        size_t second_party_row_num = first_party_col_num;
         size_t second_party_bit_index = second_party_row_num * first_party_size + second_party_col_num;
-        size_t second_party_as_row_char_index = second_party_bit_index/BYTE_SIZE;
-        size_t second_party_as_row_index_in_eight_bits=second_party_bit_index%BYTE_SIZE;
+        size_t second_party_as_row_char_index = second_party_bit_index / BYTE_SIZE;
+        size_t second_party_as_row_index_in_eight_bits = second_party_bit_index % BYTE_SIZE;
         unsigned char tmp_char = 0x01;
-        unsigned char first_party_with_one_bit = tmp_char & (first_party_as_row_profiles[first_party_as_row_char_index] >> first_party_as_row_index_in_eight_bits);
-        unsigned char second_party_with_one_bit = tmp_char & (second_party_as_row_profiles[second_party_as_row_char_index] >> second_party_as_row_index_in_eight_bits);
-        if(first_party_with_one_bit & second_party_with_one_bit == tmp_char){
+        unsigned char first_party_with_one_bit = tmp_char &
+                                                 (first_party_as_row_profiles[first_party_as_row_char_index] >>
+                                                  first_party_as_row_index_in_eight_bits);
+        unsigned char second_party_with_one_bit = tmp_char &
+                                                  (second_party_as_row_profiles[second_party_as_row_char_index] >>
+                                                   second_party_as_row_index_in_eight_bits);
+        if (first_party_with_one_bit & second_party_with_one_bit == tmp_char) {
             //Print
             Strategy *first_party_strategy = first_party_strategies_[first_party_row_num];
             Strategy *second_party_strategy = second_party_strategies_[first_party_col_num];
@@ -430,7 +436,6 @@ void AlphaBetaPruningSolverWithBits::PrintNashEquilibrium() {
 int AlphaBetaPruningSolverWithBits::TraverseUsingPruning(vector<Strategy *> &beta_strategies,
                                                          vector<Strategy *> &alpha_strategies,
                                                          unsigned char *&alpha_possible_nash_bitmap) {
-//    vector<int> po
     // max of minimals
     int max_alpha = -1;
     for (int row_num = 0; row_num < alpha_strategies.size(); row_num++) {
@@ -438,8 +443,6 @@ int AlphaBetaPruningSolverWithBits::TraverseUsingPruning(vector<Strategy *> &bet
         int min_value = TraverseBetaStrategies(beta_strategies, alpha_strategy, alpha_possible_nash_bitmap, max_alpha,
                                                row_num);
         if (min_value > max_alpha) {
-            //Need Clear Before
-
             max_alpha = min_value;
         }
     }
@@ -447,7 +450,8 @@ int AlphaBetaPruningSolverWithBits::TraverseUsingPruning(vector<Strategy *> &bet
 }
 
 int AlphaBetaPruningSolverWithBits::TraverseBetaStrategies(vector<Strategy *> &beta_strategies,
-                                                           Strategy *alpha_strategy, unsigned char *&alpha_possible_nash_bitmap,
+                                                           Strategy *alpha_strategy,
+                                                           unsigned char *&alpha_possible_nash_bitmap,
                                                            int &max_of_minimals, int row_num) {
     vector<int> possible_to_be_nash_equilibrium_beta_strategies;
     int min_of_beta_values = 100;
@@ -478,7 +482,7 @@ int AlphaBetaPruningSolverWithBits::TraverseBetaStrategies(vector<Strategy *> &b
         size_t char_index = bit_index / BYTE_SIZE;
         int index_in_eight_bits = bit_index % BYTE_SIZE;
         unsigned char tmp_char = 0x01;
-        tmp_char << (index_in_eight_bits);
+        tmp_char = tmp_char << (index_in_eight_bits);
         alpha_possible_nash_bitmap[char_index] |= tmp_char;
     }
     return min_of_beta_values;
