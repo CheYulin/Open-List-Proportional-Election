@@ -144,10 +144,12 @@ void Solver::FindNashEquilibrium(Party *store_nash_equilibrium_party, Party *fix
 void Solver::TraverseTheOtherPartyStrategies(vector<SameSizeStrategies> *store_different_size_strategies,
                                              Strategy *fixed_strategy) {
     vector<Strategy *> possible_to_be_updated_stored_strategies;
-    for(vector<SameSizeStrategies>::iterator same_size_strategy_iterator = store_different_size_strategies->begin();same_size_strategy_iterator!=store_different_size_strategies->end();same_size_strategy_iterator++){
-        SameSizeStrategies &store_same_size_strategies = * same_size_strategy_iterator;
-        for(SameSizeStrategies::iterator strategy_iterator =store_same_size_strategies.begin(); strategy_iterator!=store_same_size_strategies.end();strategy_iterator++){
-            Strategy & stored_strategy = *strategy_iterator;
+    for (vector<SameSizeStrategies>::iterator same_size_strategy_iterator = store_different_size_strategies->begin();
+         same_size_strategy_iterator != store_different_size_strategies->end(); same_size_strategy_iterator++) {
+        SameSizeStrategies &store_same_size_strategies = *same_size_strategy_iterator;
+        for (SameSizeStrategies::iterator strategy_iterator = store_same_size_strategies.begin();
+             strategy_iterator != store_same_size_strategies.end(); strategy_iterator++) {
+            Strategy &stored_strategy = *strategy_iterator;
 
             Profile profile = ComputePayOff(fixed_strategy, &stored_strategy);
 
@@ -175,8 +177,9 @@ void Solver::TraverseTheOtherPartyStrategies(vector<SameSizeStrategies> *store_d
     }
 
     //Update Possible Nash Equilibrium
-    for(vector<Strategy*>::iterator my_iterator = possible_to_be_updated_stored_strategies.begin(); my_iterator!= possible_to_be_updated_stored_strategies.end();my_iterator++){
-        Strategy *& to_be_updated_store_strategies =*my_iterator;
+    for (vector<Strategy *>::iterator my_iterator = possible_to_be_updated_stored_strategies.begin();
+         my_iterator != possible_to_be_updated_stored_strategies.end(); my_iterator++) {
+        Strategy *&to_be_updated_store_strategies = *my_iterator;
         to_be_updated_store_strategies->possible_nash_equilibrium_.push_back(fixed_strategy);
     }
 }
@@ -186,12 +189,15 @@ void Solver::PrintNashEquilibrium() {
     vector<SameSizeStrategies> *store_different_size_strategies = &first_party_->getStrategies_with_different_size_();
     std::ios_base::sync_with_stdio(false);
     cout << setiosflags(ios::fixed) << setprecision(2);
-    for(vector<SameSizeStrategies>::iterator same_size_strategies_iterator = store_different_size_strategies->begin(); same_size_strategies_iterator!=store_different_size_strategies->end();same_size_strategies_iterator++){
-        SameSizeStrategies & store_same_size_strategies = *same_size_strategies_iterator;
-        for(SameSizeStrategies::iterator strategy_iterator=store_same_size_strategies.begin();strategy_iterator!=store_same_size_strategies.end();strategy_iterator++){
-            Strategy&stored_strategy = *strategy_iterator;
-            for(vector<Strategy*>::iterator my_iterator=stored_strategy.possible_nash_equilibrium_.begin(); my_iterator!=stored_strategy.possible_nash_equilibrium_.end();my_iterator++){
-                Strategy *&fixed_strategy =* my_iterator;
+    for (vector<SameSizeStrategies>::iterator same_size_strategies_iterator = store_different_size_strategies->begin();
+         same_size_strategies_iterator != store_different_size_strategies->end(); same_size_strategies_iterator++) {
+        SameSizeStrategies &store_same_size_strategies = *same_size_strategies_iterator;
+        for (SameSizeStrategies::iterator strategy_iterator = store_same_size_strategies.begin();
+             strategy_iterator != store_same_size_strategies.end(); strategy_iterator++) {
+            Strategy &stored_strategy = *strategy_iterator;
+            for (vector<Strategy *>::iterator my_iterator = stored_strategy.possible_nash_equilibrium_.begin();
+                 my_iterator != stored_strategy.possible_nash_equilibrium_.end(); my_iterator++) {
+                Strategy *&fixed_strategy = *my_iterator;
                 stringstream string_builder;
                 string_builder << "({" << stored_strategy.ToString() << "," << fixed_strategy->ToString() << "})" <<
                 "\t";
@@ -203,98 +209,164 @@ void Solver::PrintNashEquilibrium() {
     }
 }
 
+//AlphaBetaPruningSolver Related
+AlphaBetaPruningSolver::AlphaBetaPruningSolver(Party *first_party, Party *second_party, int seats_num) : Solver(
+        first_party, second_party, seats_num) {
 
+}
 
+//Init Strategies for Convenience of Reference
+void AlphaBetaPruningSolver::InitSinglePartyStrategiesIntoVector(vector<SameSizeStrategies> *party_strategies,
+                                                                 vector<Strategy *> &party_strategies_storage) {
+    for (vector<SameSizeStrategies>::iterator same_size_strategies_iterator = party_strategies->begin();
+         same_size_strategies_iterator != party_strategies->end(); same_size_strategies_iterator++) {
+        SameSizeStrategies &same_party_strategies = *same_size_strategies_iterator;
+        for (vector<Strategy>::iterator strategy_iterator = same_party_strategies.begin();
+             strategy_iterator != same_party_strategies.end(); strategy_iterator++) {
+            party_strategies_storage.push_back(&(*strategy_iterator));
+        }
+    }
+}
 
-int AlphaBetaPruningSolver::TraverseUsingPruning(vector<SameSizeStrategies> *beta_strategies,
-                                                  vector<SameSizeStrategies> *alpha_strategies) {
+void AlphaBetaPruningSolver::InitBothPartyStrategiesIntoVector() {
+    InitSinglePartyStrategiesIntoVector(&(getFirst_party_()->getStrategies_with_different_size_()),
+                                        first_party_strategies_);
+    InitSinglePartyStrategiesIntoVector(&(getSecond_party_()->getStrategies_with_different_size_()),
+                                        second_party_strategies_);
+    possible_to_be_nash_equilibrium_first_alpha_strategies.clear();
+    possible_to_be_nash_equilibrium_second_alpha_strategies.clear();
+}
 
-    // max of mins
+int AlphaBetaPruningSolver::TraverseUsingPruning(vector<Strategy *> &beta_strategies,
+                                                 vector<Strategy *> &alpha_strategies,
+                                                 vector<Strategy *> &possible_nash_alpha_strategies) {
+    // max of minimals
     int max_alpha = -1;
-    vector<Strategy *> possible_to_be_nash_equilibrium_alpha_strategies;
-    for (SameSizeStrategies &alpha_same_size_strategies : *alpha_strategies) {
-        for (Strategy &alpha_strategy : alpha_same_size_strategies) {
-            int min_value = TraverseBetaStrategies(beta_strategies, &alpha_strategy, max_alpha);
-            if(min_value > max_alpha){
-                for(Strategy * alpha_strategy : possible_to_be_nash_equilibrium_alpha_strategies){
-                    alpha_strategy->is_possible_nash_equilibrium =false;
-                    alpha_strategy->possible_nash_equilibrium_.clear();
-                }
-                possible_to_be_nash_equilibrium_alpha_strategies.clear();
-                max_alpha = min_value;
+    for (int i = 0; i < alpha_strategies.size(); i++) {
+        Strategy *alpha_strategy = alpha_strategies[i];
+        int min_value = TraverseBetaStrategies(beta_strategies, alpha_strategy, max_alpha);
+        if (min_value > max_alpha) {
+            for (Strategy *alpha_strategy : possible_nash_alpha_strategies) {
+                alpha_strategy->possible_nash_equilibrium_.clear();
             }
+            possible_nash_alpha_strategies.clear();
+            max_alpha = min_value;
+        }
 
-            if(min_value >= max_alpha){
-                alpha_strategy.is_possible_nash_equilibrium = true;
-                possible_to_be_nash_equilibrium_alpha_strategies.push_back(&alpha_strategy);
-            }
-
+        if (min_value >= max_alpha) {
+            possible_nash_alpha_strategies.push_back(alpha_strategy);
         }
     }
     return max_alpha;
 }
 
-int AlphaBetaPruningSolver::TraverseBetaStrategies(vector<SameSizeStrategies> *beta_strategies, Strategy *alpha_strategy, int &max_of_mins) {
-    vector<Strategy *> possible_to_be_nash_equilibrium_beta_strategies;
+int AlphaBetaPruningSolver::TraverseBetaStrategies(vector<Strategy *> &beta_strategies,
+                                                   Strategy *alpha_strategy, int &max_of_minimals) {
+    vector<Strategy *> & possible_to_be_nash_equilibrium_beta_strategies = alpha_strategy->possible_nash_equilibrium_;
     int min_of_beta_values = 100;
-    for (SameSizeStrategies &beta_same_size_strategies : *beta_strategies) {
-        for (Strategy &beta_strategy: beta_same_size_strategies) {
-            Profile profile = ComputePayOff(alpha_strategy, &beta_strategy);
-            int alpha_value = profile.fixed_strategy_payoff_;
+    for (int j = 0; j < beta_strategies.size(); j++) {
+        Strategy *beta_strategy = beta_strategies[j];
+        Profile profile = ComputePayOff(alpha_strategy, beta_strategy);
+        int alpha_value = profile.fixed_strategy_payoff_;
 
-            if(alpha_value < min_of_beta_values){
-                for(Strategy* beta_strategy : possible_to_be_nash_equilibrium_beta_strategies){
-                    beta_strategy->is_possible_nash_equilibrium =false;
-                }
-                possible_to_be_nash_equilibrium_beta_strategies.clear();
-                min_of_beta_values = alpha_value;
-                if(min_of_beta_values < max_of_mins){
-                    return min_of_beta_values;
-                }
-
+        if (alpha_value < min_of_beta_values) {
+            possible_to_be_nash_equilibrium_beta_strategies.clear();
+            min_of_beta_values = alpha_value;
+            if (min_of_beta_values < max_of_minimals) {
+                alpha_strategy->possible_nash_equilibrium_.clear();
+                return min_of_beta_values;
             }
+        }
 
-            if(alpha_value <= min_of_beta_values){
-                beta_strategy.is_possible_nash_equilibrium = true;
-                possible_to_be_nash_equilibrium_beta_strategies.push_back(&beta_strategy);
-            }
-
+        if (alpha_value <= min_of_beta_values) {
+            possible_to_be_nash_equilibrium_beta_strategies.push_back(beta_strategy);
         }
     }
-
-    alpha_strategy->possible_nash_equilibrium_ = possible_to_be_nash_equilibrium_beta_strategies;
     return min_of_beta_values;
-
 }
-
 
 
 void AlphaBetaPruningSolver::PrintNashEquilibrium() {
-//    Solver::PrintNashEquilibrium();
-    int alpha_max1 = TraverseUsingPruning(&getFirst_party_()->getStrategies_with_different_size_(),&getSecond_party_()->getStrategies_with_different_size_());
-//    int alpha_max2 = TraverseUsingPruning(&getSecond_party_()->getStrategies_with_different_size_(),&getFirst_party_()->getStrategies_with_different_size_());
-    for (SameSizeStrategies &second_party_same_size_strategies : getSecond_party_()->getStrategies_with_different_size_()) {
-        for (Strategy &stored_strategy: second_party_same_size_strategies) {
-            if(stored_strategy.is_possible_nash_equilibrium == true){
-                for (Strategy *&fixed_strategy : stored_strategy.possible_nash_equilibrium_) {
-                    if(fixed_strategy->is_possible_nash_equilibrium == true)
-                    {
-                        stringstream string_builder;
-                        string_builder << "({" << stored_strategy.ToString() << "," << fixed_strategy->ToString() << "})" <<
-                        "\t";
-                        string_builder << "payoff    " << "(" <<(getSeats_num_()-alpha_max1) << ",  " <<
-                                alpha_max1   << ")";
-                        cout << string_builder.str() << endl;
-                    }
+    cout << time(NULL) << endl;
+    InitBothPartyStrategiesIntoVector();
+    cout << time(NULL) << "Finish Init" << endl;
+    int second_party_alpha_max1 = TraverseUsingPruning(first_party_strategies_, second_party_strategies_,
+                                                 possible_to_be_nash_equilibrium_first_alpha_strategies);
+    cout << time(NULL) << "Finish First" << endl;
+    int first_party_alpha_max2 = TraverseUsingPruning(second_party_strategies_, first_party_strategies_,
+                                                 possible_to_be_nash_equilibrium_second_alpha_strategies);
+    cout << time(NULL) << "Finish Second" << endl;
+    vector<Strategy *> &first_party_possible_nash_strategies = possible_to_be_nash_equilibrium_second_alpha_strategies;
+    vector<Strategy *> &second_party_possible_nash_strategies = possible_to_be_nash_equilibrium_first_alpha_strategies;
+
+    InitSinglePartyMaximumPossibleNashStrategiesIdMap(first_party_possible_nash_strategies,
+                                                      first_party_possible_nash_alpha_strategies_id_map);
+    cout << time(NULL) << "Finish First Result Init" << endl;
+    InitSinglePartyMaximumPossibleNashStrategiesIdMap(second_party_possible_nash_strategies,
+                                                      second_party_possible_nash_alpha_strategies_id_map);
+    cout << time(NULL) << "Finish Second Result Init" << endl;
+    size_t first_party_size = first_party_possible_nash_strategies.size();
+    size_t second_party_size = second_party_possible_nash_strategies.size();
+    size_t all_possible_nash_profile_size = first_party_size * second_party_size / BYTE_SIZE + 1;
+    unsigned char *possible_nash_strategies_bitmap = new unsigned char[all_possible_nash_profile_size];
+    memset(possible_nash_strategies_bitmap, 0, all_possible_nash_profile_size);
+
+    cout << time(NULL) << endl;
+
+    //First Time Flip if First Party Has it
+    for (size_t row_num = 0; row_num < first_party_possible_nash_strategies.size(); row_num++) {
+        Strategy *first_party_strategy = first_party_possible_nash_strategies[row_num];
+        for (vector<Strategy *>::iterator strategy_iterator = first_party_strategy->possible_nash_equilibrium_.begin();
+             strategy_iterator != first_party_strategy->possible_nash_equilibrium_.end(); strategy_iterator++) {
+            if (second_party_possible_nash_alpha_strategies_id_map.find(*strategy_iterator) !=
+                second_party_possible_nash_alpha_strategies_id_map.end()) {
+                size_t col_num = second_party_possible_nash_alpha_strategies_id_map[*strategy_iterator];
+                size_t bit_index = row_num * second_party_size + col_num;
+                size_t char_index = bit_index / BYTE_SIZE;
+                int index_in_eight_bits = bit_index % BYTE_SIZE;
+                unsigned char tmp_char = 0x01;
+                tmp_char << (index_in_eight_bits);
+                possible_nash_strategies_bitmap[char_index] |= tmp_char;
+            }
+        }
+    }
+
+    for (size_t col_num = 0; col_num < second_party_possible_nash_strategies.size(); col_num++) {
+        Strategy *second_party_strategy = second_party_possible_nash_strategies[col_num];
+        for (vector<Strategy *>::iterator strategy_iterator = second_party_strategy->possible_nash_equilibrium_.begin();
+             strategy_iterator != second_party_strategy->possible_nash_equilibrium_.end(); strategy_iterator++) {
+            if (first_party_possible_nash_alpha_strategies_id_map.find(*strategy_iterator) !=
+                first_party_possible_nash_alpha_strategies_id_map.end()) {
+                size_t row_num = first_party_possible_nash_alpha_strategies_id_map[*strategy_iterator];
+                size_t bit_index = row_num * second_party_size + col_num;
+                size_t char_index = bit_index / BYTE_SIZE;
+                int index_in_eight_bits = bit_index % BYTE_SIZE;
+                unsigned char tmp_char = 0x01;
+                tmp_char << (index_in_eight_bits);
+                if(tmp_char & possible_nash_strategies_bitmap[char_index] == tmp_char){
+                    //Print
+                    Strategy *first_party_strategy = *strategy_iterator;
+                    stringstream string_builder;
+                    string_builder << "({" << first_party_strategy->ToString() << "," << second_party_strategy->ToString() << "})" <<
+                    "\t";
+                    string_builder << "payoff    " << "(" << first_party_alpha_max2 << ",  " <<
+                    second_party_alpha_max1 << ")";
+                    cout << string_builder.str() << endl;
 
                 }
             }
-
-
         }
     }
 }
 
-AlphaBetaPruningSolver::AlphaBetaPruningSolver(Party *first_party, Party *second_party, int seats_num):Solver(first_party,second_party,seats_num) {
-
+void AlphaBetaPruningSolver::InitSinglePartyMaximumPossibleNashStrategiesIdMap(
+        vector<Strategy *> &single_party_possible_nash_strategies,
+        map<Strategy *, int> &possible_nash_alpha_strategies_id_map) {
+    int id_number = 0;
+    possible_nash_alpha_strategies_id_map.clear();
+    for (int i = 0; i < single_party_possible_nash_strategies.size(); i++) {
+        Strategy *strategy = single_party_possible_nash_strategies[i];
+        possible_nash_alpha_strategies_id_map.insert(make_pair(strategy, id_number));
+        id_number++;
+    }
 }

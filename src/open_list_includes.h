@@ -8,6 +8,7 @@
 #endif //SRC_OPEN_LIST_INCLUDES_H_H
 
 #include "stdlib.h"
+#include "string.h"
 #include <set>
 #include <map>
 #include <vector>
@@ -18,5 +19,6 @@
 #include <sstream>
 #include <iomanip>
 
+#define BYTE_SIZE 8
 using namespace std;
 

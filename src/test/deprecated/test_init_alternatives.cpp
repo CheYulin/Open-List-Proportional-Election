@@ -181,10 +181,12 @@ void TestCOnstructCOmbinationWithSet() {
 }
 
 int main() {
-    vector<Group> *my_vector = new vector<Group>(10);
-    delete my_vector;
-    std::ios_base::sync_with_stdio(false);
-    cout << setiosflags(ios::fixed) << setprecision(2) << (double) 100 << "~~~~" << 100.324324 << endl;
-    cout << "haha" << 43243.432432 << endl;
+//    vector<Group> *my_vector = new vector<Group>(10);
+//    delete my_vector;
+//    std::ios_base::sync_with_stdio(false);
+//    cout << setiosflags(ios::fixed) << setprecision(2) << (double) 100 << "~~~~" << 100.324324 << endl;
+//    cout << "haha" << 43243.432432 << endl;
+    cout <<  sizeof(char) << endl;
+    cout << (2 >> 2);
 }
 

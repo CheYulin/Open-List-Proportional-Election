@@ -58,14 +58,36 @@ namespace election {
         }
     };
 
-    class AlphaBetaPruningSolver:public Solver{
+    class AlphaBetaPruningSolver : public Solver {
+    private:
+        vector<Strategy *> first_party_strategies_;
+        vector<Strategy *> second_party_strategies_;
+        vector<Strategy *> possible_to_be_nash_equilibrium_first_alpha_strategies;
+        vector<Strategy *> possible_to_be_nash_equilibrium_second_alpha_strategies;
+
+        void InitSinglePartyStrategiesIntoVector(vector<SameSizeStrategies> *party_strategies,
+                                                 vector<Strategy *> &party_strategies_storage);
+
+        map<Strategy *, int> first_party_possible_nash_alpha_strategies_id_map;
+        map<Strategy *, int> second_party_possible_nash_alpha_strategies_id_map;
+
+        void InitBothPartyStrategiesIntoVector();
+
+
+        int TraverseBetaStrategies(vector<Strategy *> &beta_strategies, Strategy *alpha_strategy,
+                                   int &max_of_minimals);
+
+        int TraverseUsingPruning(vector<Strategy *> &beta_strategies, vector<Strategy *> &alpha_strategies,
+                                 vector<Strategy *> &possible_nash_alpha_strategies);
+
+        void InitSinglePartyMaximumPossibleNashStrategiesIdMap(vector<Strategy *> &single_party_possible_nash_strategies,
+                                                               map<Strategy *, int> &possible_nash_alpha_strategies_id_map);
+
     public:
-        int TraverseUsingPruning(vector<SameSizeStrategies> *beta_strategies,vector<SameSizeStrategies> * alpha_strategies);
+
         AlphaBetaPruningSolver(Party *first_party, Party *second_party, int seats_num);
 
         virtual void PrintNashEquilibrium();
 
-        int TraverseBetaStrategies(vector<SameSizeStrategies> *beta_strategies, Strategy *alpha_strategy,
-                                    int &max_of_mins);
     };
 }
