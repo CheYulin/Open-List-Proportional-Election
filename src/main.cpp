@@ -9,7 +9,7 @@ int main(int argc, char* argv[]) {
     my_solver->getSecond_party_()->InitStrategies();
     Party *first_party = new Party(*my_solver->getFirst_party_());
     Party *second_party = new Party(*my_solver->getSecond_party_());
-    Solver *alpha_beta_solver = new AlphaBetaPruningSolver(first_party,second_party,my_solver->getSeats_num_());
+    Solver *alpha_beta_solver = new AlphaBetaPruningSolverWithBits(first_party,second_party,my_solver->getSeats_num_());
     alpha_beta_solver->PrintNashEquilibrium();
 //    my_solver->PrintNashEquilibrium();
     delete my_solver;
