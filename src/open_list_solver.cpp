@@ -313,22 +313,22 @@ void AlphaBetaPruningSolverNaive::InitSinglePartyMaximumPossibleNashStrategiesId
 
 void AlphaBetaPruningSolverNaive::PrintNashEquilibrium() {
     cout << time(NULL) << endl;
-    cout << time(NULL) << "Finish Init" << endl;
+//    cout << time(NULL) << "Finish Init" << endl;
     SeatNumber second_party_alpha_max1 = TraverseUsingPruning(first_party_strategies_, second_party_strategies_,
                                                               possible_to_be_nash_equilibrium_first_alpha_strategies);
-    cout << time(NULL) << "Finish First" << endl;
+//    cout << time(NULL) << "Finish First" << endl;
     SeatNumber first_party_alpha_max2 = TraverseUsingPruning(second_party_strategies_, first_party_strategies_,
                                                              possible_to_be_nash_equilibrium_second_alpha_strategies);
-    cout << time(NULL) << "Finish Second" << endl;
+//    cout << time(NULL) << "Finish Second" << endl;
     vector<Strategy *> &first_party_possible_nash_strategies = possible_to_be_nash_equilibrium_second_alpha_strategies;
     vector<Strategy *> &second_party_possible_nash_strategies = possible_to_be_nash_equilibrium_first_alpha_strategies;
 
     InitSinglePartyMaximumPossibleNashStrategiesIdMap(first_party_possible_nash_strategies,
                                                       first_party_possible_nash_alpha_strategies_id_map);
-    cout << time(NULL) << "Finish First Result Init" << endl;
+//    cout << time(NULL) << "Finish First Result Init" << endl;
     InitSinglePartyMaximumPossibleNashStrategiesIdMap(second_party_possible_nash_strategies,
                                                       second_party_possible_nash_alpha_strategies_id_map);
-    cout << time(NULL) << "Finish Second Result Init" << endl;
+//    cout << time(NULL) << "Finish Second Result Init" << endl;
     size_t first_party_size = first_party_possible_nash_strategies.size();
     size_t second_party_size = second_party_possible_nash_strategies.size();
     size_t all_possible_nash_profile_size = first_party_size * second_party_size / BYTE_SIZE + 1;
@@ -423,10 +423,10 @@ void AlphaBetaPruningSolverWithBits::PrintNashEquilibrium() {
         unsigned char tmp_char = 0x01;
         unsigned char first_party_with_one_bit = tmp_char &
                                                  (first_party_as_row_profiles[first_party_as_row_char_index] >>
-                                                  first_party_as_row_index_in_eight_bits);
+                                                         (BYTE_SIZE-1-first_party_as_row_index_in_eight_bits));
         unsigned char second_party_with_one_bit = tmp_char &
                                                   (second_party_as_row_profiles[second_party_as_row_char_index] >>
-                                                   second_party_as_row_index_in_eight_bits);
+                                                          (BYTE_SIZE-1-second_party_as_row_index_in_eight_bits));
         if (first_party_with_one_bit & second_party_with_one_bit == tmp_char) {
             //Print
             Strategy *first_party_strategy = first_party_strategies_[first_party_row_num];
@@ -495,7 +495,7 @@ SeatNumber AlphaBetaPruningSolverWithBits::TraverseBetaStrategies(vector<Strateg
         size_t char_index = bit_index / BYTE_SIZE;
         int index_in_eight_bits = bit_index % BYTE_SIZE;
         unsigned char tmp_char = 0x01;
-        tmp_char = tmp_char << (index_in_eight_bits);
+        tmp_char = tmp_char << (BYTE_SIZE - 1 - index_in_eight_bits);
         alpha_possible_nash_bitmap[char_index] |= tmp_char;
     }
     return min_of_beta_values;
