@@ -13,8 +13,8 @@
 namespace election {
 
     struct Profile {
-        VoteNumber left_strategy_payoff_;
-        VoteNumber right_strategy_payoff_;
+        SeatNumber left_strategy_payoff_;
+        SeatNumber right_strategy_payoff_;
 
         Profile();
     };
@@ -90,10 +90,10 @@ namespace election {
         map<Strategy *, int> first_party_possible_nash_alpha_strategies_id_map;
         map<Strategy *, int> second_party_possible_nash_alpha_strategies_id_map;
 
-        VoteNumber TraverseBetaStrategies(vector<Strategy *> &beta_strategies, Strategy *alpha_strategy,
-                                   VoteNumber &max_of_minimals);
+        SeatNumber TraverseBetaStrategies(vector<Strategy *> &beta_strategies, Strategy *alpha_strategy,
+                                   SeatNumber &max_of_minimals);
 
-        VoteNumber TraverseUsingPruning(vector<Strategy *> &beta_strategies, vector<Strategy *> &alpha_strategies,
+        SeatNumber TraverseUsingPruning(vector<Strategy *> &beta_strategies, vector<Strategy *> &alpha_strategies,
                                  vector<Strategy *> &possible_nash_alpha_strategies);
 
     public:
@@ -111,10 +111,10 @@ namespace election {
         unsigned char *first_alpha_possible_nash_bitmap;
         unsigned char *second_alpha_possible_nash_bitmap;
 
-        VoteNumber TraverseBetaStrategies(vector<Strategy *> &beta_strategies, Strategy *alpha_strategy,
-                                   unsigned char *&alpha_possible_nash_bitmap, VoteNumber &max_of_minimals, int row_num);
+        SeatNumber TraverseBetaStrategies(vector<Strategy *> &beta_strategies, Strategy *alpha_strategy,
+                                   unsigned char *&alpha_possible_nash_bitmap, SeatNumber &max_of_minimals, int row_num);
 
-        VoteNumber TraverseUsingPruning(vector<Strategy *> &beta_strategies, vector<Strategy *> &alpha_strategies,
+        SeatNumber TraverseUsingPruning(vector<Strategy *> &beta_strategies, vector<Strategy *> &alpha_strategies,
                                  unsigned char *&alpha_possible_nash_bitmap);
 
     public:

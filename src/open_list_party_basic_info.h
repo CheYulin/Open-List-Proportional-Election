@@ -13,7 +13,7 @@ namespace election{
     typedef int CandidateId;
     typedef int CandidateVoteCount;
     typedef string CandidateName;
-    typedef double VoteNumber;
+    typedef double SeatNumber;
 
     struct CandidateInfo {
         CandidateName candidate_name_;

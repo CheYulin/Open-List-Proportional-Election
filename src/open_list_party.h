@@ -14,10 +14,10 @@ namespace election {
 
     struct Strategy {
         int fixed_seats_num;
-        vector<VoteNumber> remaining_candidate_vote_ordered_list_;
+        vector<int> remaining_candidate_vote_ordered_list_;
         vector<const CandidateListInfo*> candidate_list_info_list_;
         vector<Strategy *> possible_nash_equilibrium_;
-        VoteNumber the_other_party_max_pay_off_;
+        SeatNumber the_other_party_max_pay_off_;
         Party *party_;
         Strategy(Party *party);
         string ToString();
