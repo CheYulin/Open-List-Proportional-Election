@@ -248,14 +248,14 @@ AlphaBetaPruningSolverNaive::AlphaBetaPruningSolverNaive(Party *first_party, Par
     possible_to_be_nash_equilibrium_second_alpha_strategies.clear();
 }
 
-int AlphaBetaPruningSolverNaive::TraverseUsingPruning(vector<Strategy *> &beta_strategies,
+VoteNumber AlphaBetaPruningSolverNaive::TraverseUsingPruning(vector<Strategy *> &beta_strategies,
                                                       vector<Strategy *> &alpha_strategies,
                                                       vector<Strategy *> &possible_nash_alpha_strategies) {
     // max of minimals
-    int max_alpha = -1;
+    VoteNumber max_alpha = -1;
     for (int i = 0; i < alpha_strategies.size(); i++) {
         Strategy *alpha_strategy = alpha_strategies[i];
-        int min_value = TraverseBetaStrategies(beta_strategies, alpha_strategy, max_alpha);
+        VoteNumber min_value = TraverseBetaStrategies(beta_strategies, alpha_strategy, max_alpha);
         if (min_value > max_alpha + DOUBLE_PRECISION) {
             for (vector<Strategy *>::iterator strategy_iterator = possible_nash_alpha_strategies.begin();
                  strategy_iterator != possible_nash_alpha_strategies.end(); strategy_iterator++) {
@@ -273,14 +273,14 @@ int AlphaBetaPruningSolverNaive::TraverseUsingPruning(vector<Strategy *> &beta_s
     return max_alpha;
 }
 
-int AlphaBetaPruningSolverNaive::TraverseBetaStrategies(vector<Strategy *> &beta_strategies,
-                                                        Strategy *alpha_strategy, int &max_of_minimals) {
+VoteNumber AlphaBetaPruningSolverNaive::TraverseBetaStrategies(vector<Strategy *> &beta_strategies,
+                                                        Strategy *alpha_strategy, VoteNumber &max_of_minimals) {
     vector<Strategy *> &possible_to_be_nash_equilibrium_beta_strategies = alpha_strategy->possible_nash_equilibrium_;
-    int min_of_beta_values = 100;
+    VoteNumber min_of_beta_values = 100;
     for (int j = 0; j < beta_strategies.size(); j++) {
         Strategy *beta_strategy = beta_strategies[j];
         Profile profile = ComputePayOff(alpha_strategy, beta_strategy);
-        int alpha_value = profile.left_strategy_payoff_;
+        VoteNumber alpha_value = profile.left_strategy_payoff_;
 
         if (alpha_value < min_of_beta_values - DOUBLE_PRECISION) {
             possible_to_be_nash_equilibrium_beta_strategies.clear();
@@ -313,10 +313,10 @@ void AlphaBetaPruningSolverNaive::InitSinglePartyMaximumPossibleNashStrategiesId
 void AlphaBetaPruningSolverNaive::PrintNashEquilibrium() {
     cout << time(NULL) << endl;
     cout << time(NULL) << "Finish Init" << endl;
-    int second_party_alpha_max1 = TraverseUsingPruning(first_party_strategies_, second_party_strategies_,
+    VoteNumber second_party_alpha_max1 = TraverseUsingPruning(first_party_strategies_, second_party_strategies_,
                                                        possible_to_be_nash_equilibrium_first_alpha_strategies);
     cout << time(NULL) << "Finish First" << endl;
-    int first_party_alpha_max2 = TraverseUsingPruning(second_party_strategies_, first_party_strategies_,
+    VoteNumber first_party_alpha_max2 = TraverseUsingPruning(second_party_strategies_, first_party_strategies_,
                                                       possible_to_be_nash_equilibrium_second_alpha_strategies);
     cout << time(NULL) << "Finish Second" << endl;
     vector<Strategy *> &first_party_possible_nash_strategies = possible_to_be_nash_equilibrium_second_alpha_strategies;
@@ -398,9 +398,9 @@ AlphaBetaPruningSolverWithBits::AlphaBetaPruningSolverWithBits(Party *first_part
 
 void AlphaBetaPruningSolverWithBits::PrintNashEquilibrium() {
     //second_party_strategies_ as Row
-    int second_party_alpha_max = TraverseUsingPruning(first_party_strategies_, second_party_strategies_,
+    VoteNumber second_party_alpha_max = TraverseUsingPruning(first_party_strategies_, second_party_strategies_,
                                                       first_alpha_possible_nash_bitmap);
-    int first_party_alpha_max = TraverseUsingPruning(second_party_strategies_, first_party_strategies_,
+    VoteNumber first_party_alpha_max = TraverseUsingPruning(second_party_strategies_, first_party_strategies_,
                                                      second_alpha_possible_nash_bitmap);
     unsigned char *&second_party_as_row_profiles = first_alpha_possible_nash_bitmap;
     unsigned char *&first_party_as_row_profiles = second_alpha_possible_nash_bitmap;
@@ -441,14 +441,14 @@ void AlphaBetaPruningSolverWithBits::PrintNashEquilibrium() {
     }
 }
 
-int AlphaBetaPruningSolverWithBits::TraverseUsingPruning(vector<Strategy *> &beta_strategies,
+VoteNumber AlphaBetaPruningSolverWithBits::TraverseUsingPruning(vector<Strategy *> &beta_strategies,
                                                          vector<Strategy *> &alpha_strategies,
                                                          unsigned char *&alpha_possible_nash_bitmap) {
     // max of minimals
-    int max_alpha = -1;
+    VoteNumber max_alpha = -1;
     for (int row_num = 0; row_num < alpha_strategies.size(); row_num++) {
         Strategy *alpha_strategy = alpha_strategies[row_num];
-        int min_value = TraverseBetaStrategies(beta_strategies, alpha_strategy, alpha_possible_nash_bitmap, max_alpha,
+        VoteNumber min_value = TraverseBetaStrategies(beta_strategies, alpha_strategy, alpha_possible_nash_bitmap, max_alpha,
                                                row_num);
         if (min_value > max_alpha) {
             max_alpha = min_value;
@@ -457,17 +457,17 @@ int AlphaBetaPruningSolverWithBits::TraverseUsingPruning(vector<Strategy *> &bet
     return max_alpha;
 }
 
-int AlphaBetaPruningSolverWithBits::TraverseBetaStrategies(vector<Strategy *> &beta_strategies,
+VoteNumber AlphaBetaPruningSolverWithBits::TraverseBetaStrategies(vector<Strategy *> &beta_strategies,
                                                            Strategy *alpha_strategy,
                                                            unsigned char *&alpha_possible_nash_bitmap,
-                                                           int &max_of_minimals, int row_num) {
+                                                                  VoteNumber &max_of_minimals, int row_num) {
     vector<int> possible_to_be_nash_equilibrium_beta_strategies;
-    int min_of_beta_values = 100;
+    VoteNumber min_of_beta_values = 100;
     for (int col_num = 0; col_num < beta_strategies.size(); col_num++) {
         Strategy *beta_strategy = beta_strategies[col_num];
         Profile profile = ComputePayOff(alpha_strategy, beta_strategy);
 
-        int alpha_value = profile.left_strategy_payoff_;
+        VoteNumber alpha_value = profile.left_strategy_payoff_;
 
         if (alpha_value < min_of_beta_values) {
             possible_to_be_nash_equilibrium_beta_strategies.clear();

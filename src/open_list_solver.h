@@ -90,10 +90,10 @@ namespace election {
         map<Strategy *, int> first_party_possible_nash_alpha_strategies_id_map;
         map<Strategy *, int> second_party_possible_nash_alpha_strategies_id_map;
 
-        int TraverseBetaStrategies(vector<Strategy *> &beta_strategies, Strategy *alpha_strategy,
-                                   int &max_of_minimals);
+        VoteNumber TraverseBetaStrategies(vector<Strategy *> &beta_strategies, Strategy *alpha_strategy,
+                                   VoteNumber &max_of_minimals);
 
-        int TraverseUsingPruning(vector<Strategy *> &beta_strategies, vector<Strategy *> &alpha_strategies,
+        VoteNumber TraverseUsingPruning(vector<Strategy *> &beta_strategies, vector<Strategy *> &alpha_strategies,
                                  vector<Strategy *> &possible_nash_alpha_strategies);
 
     public:
@@ -111,10 +111,10 @@ namespace election {
         unsigned char *first_alpha_possible_nash_bitmap;
         unsigned char *second_alpha_possible_nash_bitmap;
 
-        int TraverseBetaStrategies(vector<Strategy *> &beta_strategies, Strategy *alpha_strategy,
-                                   unsigned char *&alpha_possible_nash_bitmap, int &max_of_minimals, int row_num);
+        VoteNumber TraverseBetaStrategies(vector<Strategy *> &beta_strategies, Strategy *alpha_strategy,
+                                   unsigned char *&alpha_possible_nash_bitmap, VoteNumber &max_of_minimals, int row_num);
 
-        int TraverseUsingPruning(vector<Strategy *> &beta_strategies, vector<Strategy *> &alpha_strategies,
+        VoteNumber TraverseUsingPruning(vector<Strategy *> &beta_strategies, vector<Strategy *> &alpha_strategies,
                                  unsigned char *&alpha_possible_nash_bitmap);
 
     public:
