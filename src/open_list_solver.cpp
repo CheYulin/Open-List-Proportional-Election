@@ -266,7 +266,7 @@ SeatNumber AlphaBetaPruningSolverNaive::TraverseUsingPruning(vector<Strategy *> 
             max_alpha = min_value;
         }
 
-        if (min_value >= max_alpha - DOUBLE_PRECISION) {
+        if (min_value > max_alpha + DOUBLE_PRECISION || abs(min_value - max_alpha) < DOUBLE_PRECISION) {
             possible_nash_alpha_strategies.push_back(alpha_strategy);
         }
     }
@@ -285,13 +285,14 @@ SeatNumber AlphaBetaPruningSolverNaive::TraverseBetaStrategies(vector<Strategy *
         if (alpha_value < min_of_beta_values - DOUBLE_PRECISION) {
             possible_to_be_nash_equilibrium_beta_strategies.clear();
             min_of_beta_values = alpha_value;
-            if (min_of_beta_values < max_of_minimals) {
+            if (min_of_beta_values < max_of_minimals - DOUBLE_PRECISION) {
                 alpha_strategy->possible_nash_equilibrium_.clear();
                 return min_of_beta_values;
             }
         }
 
-        if (alpha_value <= min_of_beta_values + DOUBLE_PRECISION) {
+        if (alpha_value < min_of_beta_values - DOUBLE_PRECISION ||
+            abs(alpha_value - min_of_beta_values) < DOUBLE_PRECISION) {
             possible_to_be_nash_equilibrium_beta_strategies.push_back(beta_strategy);
         }
     }
@@ -452,6 +453,7 @@ SeatNumber AlphaBetaPruningSolverWithBits::TraverseUsingPruning(vector<Strategy 
                                                       max_alpha,
                                                       row_num);
         if (min_value > max_alpha) {
+
             max_alpha = min_value;
         }
     }
@@ -470,15 +472,16 @@ SeatNumber AlphaBetaPruningSolverWithBits::TraverseBetaStrategies(vector<Strateg
 
         SeatNumber alpha_value = profile.left_strategy_payoff_;
 
-        if (alpha_value < min_of_beta_values) {
+        if (alpha_value < min_of_beta_values - DOUBLE_PRECISION) {
             possible_to_be_nash_equilibrium_beta_strategies.clear();
             min_of_beta_values = alpha_value;
-            if (min_of_beta_values < max_of_minimals) {
+            if (min_of_beta_values < max_of_minimals - DOUBLE_PRECISION) {
                 return min_of_beta_values;
             }
         }
 
-        if (alpha_value <= min_of_beta_values) {
+        if (alpha_value < min_of_beta_values - DOUBLE_PRECISION ||
+            abs(alpha_value - min_of_beta_values) < DOUBLE_PRECISION) {
             possible_to_be_nash_equilibrium_beta_strategies.push_back(col_num);
         }
     }
