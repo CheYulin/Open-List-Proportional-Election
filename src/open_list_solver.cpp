@@ -249,8 +249,8 @@ AlphaBetaPruningSolverNaive::AlphaBetaPruningSolverNaive(Party *first_party, Par
 }
 
 VoteNumber AlphaBetaPruningSolverNaive::TraverseUsingPruning(vector<Strategy *> &beta_strategies,
-                                                      vector<Strategy *> &alpha_strategies,
-                                                      vector<Strategy *> &possible_nash_alpha_strategies) {
+                                                             vector<Strategy *> &alpha_strategies,
+                                                             vector<Strategy *> &possible_nash_alpha_strategies) {
     // max of minimals
     VoteNumber max_alpha = -1;
     for (int i = 0; i < alpha_strategies.size(); i++) {
@@ -266,7 +266,7 @@ VoteNumber AlphaBetaPruningSolverNaive::TraverseUsingPruning(vector<Strategy *> 
             max_alpha = min_value;
         }
 
-        if (min_value >= max_alpha - DOUBLE_PRECISION) {
+        if (min_value > max_alpha + DOUBLE_PRECISION || abs(min_value - max_alpha) < DOUBLE_PRECISION) {
             possible_nash_alpha_strategies.push_back(alpha_strategy);
         }
     }
@@ -274,7 +274,7 @@ VoteNumber AlphaBetaPruningSolverNaive::TraverseUsingPruning(vector<Strategy *> 
 }
 
 VoteNumber AlphaBetaPruningSolverNaive::TraverseBetaStrategies(vector<Strategy *> &beta_strategies,
-                                                        Strategy *alpha_strategy, VoteNumber &max_of_minimals) {
+                                                               Strategy *alpha_strategy, VoteNumber &max_of_minimals) {
     vector<Strategy *> &possible_to_be_nash_equilibrium_beta_strategies = alpha_strategy->possible_nash_equilibrium_;
     VoteNumber min_of_beta_values = 100;
     for (int j = 0; j < beta_strategies.size(); j++) {
@@ -285,13 +285,14 @@ VoteNumber AlphaBetaPruningSolverNaive::TraverseBetaStrategies(vector<Strategy *
         if (alpha_value < min_of_beta_values - DOUBLE_PRECISION) {
             possible_to_be_nash_equilibrium_beta_strategies.clear();
             min_of_beta_values = alpha_value;
-            if (min_of_beta_values < max_of_minimals) {
+            if (min_of_beta_values < max_of_minimals - DOUBLE_PRECISION) {
                 alpha_strategy->possible_nash_equilibrium_.clear();
                 return min_of_beta_values;
             }
         }
 
-        if (alpha_value <= min_of_beta_values + DOUBLE_PRECISION) {
+        if (alpha_value < min_of_beta_values - DOUBLE_PRECISION ||
+            abs(alpha_value - min_of_beta_values) < DOUBLE_PRECISION) {
             possible_to_be_nash_equilibrium_beta_strategies.push_back(beta_strategy);
         }
     }
@@ -314,10 +315,10 @@ void AlphaBetaPruningSolverNaive::PrintNashEquilibrium() {
     cout << time(NULL) << endl;
     cout << time(NULL) << "Finish Init" << endl;
     VoteNumber second_party_alpha_max1 = TraverseUsingPruning(first_party_strategies_, second_party_strategies_,
-                                                       possible_to_be_nash_equilibrium_first_alpha_strategies);
+                                                              possible_to_be_nash_equilibrium_first_alpha_strategies);
     cout << time(NULL) << "Finish First" << endl;
     VoteNumber first_party_alpha_max2 = TraverseUsingPruning(second_party_strategies_, first_party_strategies_,
-                                                      possible_to_be_nash_equilibrium_second_alpha_strategies);
+                                                             possible_to_be_nash_equilibrium_second_alpha_strategies);
     cout << time(NULL) << "Finish Second" << endl;
     vector<Strategy *> &first_party_possible_nash_strategies = possible_to_be_nash_equilibrium_second_alpha_strategies;
     vector<Strategy *> &second_party_possible_nash_strategies = possible_to_be_nash_equilibrium_first_alpha_strategies;
@@ -399,9 +400,9 @@ AlphaBetaPruningSolverWithBits::AlphaBetaPruningSolverWithBits(Party *first_part
 void AlphaBetaPruningSolverWithBits::PrintNashEquilibrium() {
     //second_party_strategies_ as Row
     VoteNumber second_party_alpha_max = TraverseUsingPruning(first_party_strategies_, second_party_strategies_,
-                                                      first_alpha_possible_nash_bitmap);
+                                                             first_alpha_possible_nash_bitmap);
     VoteNumber first_party_alpha_max = TraverseUsingPruning(second_party_strategies_, first_party_strategies_,
-                                                     second_alpha_possible_nash_bitmap);
+                                                            second_alpha_possible_nash_bitmap);
     unsigned char *&second_party_as_row_profiles = first_alpha_possible_nash_bitmap;
     unsigned char *&first_party_as_row_profiles = second_alpha_possible_nash_bitmap;
     size_t first_party_size = first_party_strategies_.size();
@@ -442,15 +443,15 @@ void AlphaBetaPruningSolverWithBits::PrintNashEquilibrium() {
 }
 
 VoteNumber AlphaBetaPruningSolverWithBits::TraverseUsingPruning(vector<Strategy *> &beta_strategies,
-                                                         vector<Strategy *> &alpha_strategies,
-                                                         unsigned char *&alpha_possible_nash_bitmap) {
+                                                                vector<Strategy *> &alpha_strategies,
+                                                                unsigned char *&alpha_possible_nash_bitmap) {
     // max of minimals
     VoteNumber max_alpha = -1;
     for (int row_num = 0; row_num < alpha_strategies.size(); row_num++) {
         Strategy *alpha_strategy = alpha_strategies[row_num];
-        VoteNumber min_value = TraverseBetaStrategies(beta_strategies, alpha_strategy, alpha_possible_nash_bitmap, max_alpha,
-                                               row_num);
-        if (min_value > max_alpha) {
+        VoteNumber min_value = TraverseBetaStrategies(beta_strategies, alpha_strategy, alpha_possible_nash_bitmap,
+                                                      max_alpha, row_num);
+        if (min_value > max_alpha + DOUBLE_PRECISION) {
             max_alpha = min_value;
         }
     }
@@ -458,8 +459,8 @@ VoteNumber AlphaBetaPruningSolverWithBits::TraverseUsingPruning(vector<Strategy 
 }
 
 VoteNumber AlphaBetaPruningSolverWithBits::TraverseBetaStrategies(vector<Strategy *> &beta_strategies,
-                                                           Strategy *alpha_strategy,
-                                                           unsigned char *&alpha_possible_nash_bitmap,
+                                                                  Strategy *alpha_strategy,
+                                                                  unsigned char *&alpha_possible_nash_bitmap,
                                                                   VoteNumber &max_of_minimals, int row_num) {
     vector<int> possible_to_be_nash_equilibrium_beta_strategies;
     VoteNumber min_of_beta_values = 100;
@@ -469,15 +470,16 @@ VoteNumber AlphaBetaPruningSolverWithBits::TraverseBetaStrategies(vector<Strateg
 
         VoteNumber alpha_value = profile.left_strategy_payoff_;
 
-        if (alpha_value < min_of_beta_values) {
+        if (alpha_value < min_of_beta_values - DOUBLE_PRECISION) {
             possible_to_be_nash_equilibrium_beta_strategies.clear();
             min_of_beta_values = alpha_value;
-            if (min_of_beta_values < max_of_minimals) {
+            if (min_of_beta_values < max_of_minimals - DOUBLE_PRECISION) {
                 return min_of_beta_values;
             }
         }
 
-        if (alpha_value <= min_of_beta_values) {
+        if (alpha_value < min_of_beta_values - DOUBLE_PRECISION ||
+            abs(alpha_value - min_of_beta_values) < DOUBLE_PRECISION) {
             possible_to_be_nash_equilibrium_beta_strategies.push_back(col_num);
         }
     }
