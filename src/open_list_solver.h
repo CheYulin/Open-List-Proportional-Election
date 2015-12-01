@@ -13,22 +13,30 @@
 namespace election {
 
     struct Profile {
-        StrategyPayOff fixed_strategy_payoff_;
-        StrategyPayOff store_strategy_payoff_;
+        VoteNumber left_strategy_payoff_;
+        VoteNumber right_strategy_payoff_;
 
         Profile();
+    };
+
+    struct SolverInfo{
+        Party* first_party_;
+        Party* second_party_;
+        int seat_num;
     };
 
     class Solver {
     private:
         int seats_num_;
+        int quota;
         Party *first_party_;
         Party *second_party_;
 
-        void UpdateCertainCandidateListFirstRoundSeatNum(vector<CandidateListInfo *> &garbage_collector,
-                                                         CompareVoteCandidateListPriorityQueue &strategy_priority_queue,
-                                                         StrategyPayOff &strategy_payoff, int &remaining_seats,
-                                                         const int quota);
+        void InitStrategyInformation(Strategy *strategy);
+
+        void InitStrategiesForSingleParty(Party *party);
+
+        void InitTwoPartiesStrategies();
 
         void TraverseTheOtherPartyStrategies(vector<SameSizeStrategies> *store_different_size_strategies,
                                              Strategy *fixed_strategy);
@@ -40,7 +48,7 @@ namespace election {
 
         virtual ~Solver();
 
-        Profile ComputePayOff(Strategy *fixed_strategy, Strategy *stored_strategy);
+        Profile ComputePayOff(Strategy *left_strategy, Strategy *right_strategy);
 
         virtual void PrintNashEquilibrium();
 
@@ -62,22 +70,26 @@ namespace election {
     protected:
         vector<Strategy *> first_party_strategies_;
         vector<Strategy *> second_party_strategies_;
+
         void InitSinglePartyStrategiesIntoVector(vector<SameSizeStrategies> *party_strategies,
                                                  vector<Strategy *> &party_strategies_storage);
+
         void InitBothPartyStrategiesIntoVector();
 
     public:
         AlphaBetaPruningSolver(Party *first_party, Party *second_party, int seats_num);
+
         virtual void PrintNashEquilibrium() = 0;
 
     };
 
-    class AlphaBetaPruningSolverNaive:public AlphaBetaPruningSolver{
+    class AlphaBetaPruningSolverNaive : public AlphaBetaPruningSolver {
     private :
         vector<Strategy *> possible_to_be_nash_equilibrium_first_alpha_strategies;
         vector<Strategy *> possible_to_be_nash_equilibrium_second_alpha_strategies;
         map<Strategy *, int> first_party_possible_nash_alpha_strategies_id_map;
         map<Strategy *, int> second_party_possible_nash_alpha_strategies_id_map;
+
         int TraverseBetaStrategies(vector<Strategy *> &beta_strategies, Strategy *alpha_strategy,
                                    int &max_of_minimals);
 
@@ -85,22 +97,31 @@ namespace election {
                                  vector<Strategy *> &possible_nash_alpha_strategies);
 
     public:
-        void InitSinglePartyMaximumPossibleNashStrategiesIdMap(vector<Strategy *> &single_party_possible_nash_strategies,
-                                                               map<Strategy *, int> &possible_nash_alpha_strategies_id_map);
+        void InitSinglePartyMaximumPossibleNashStrategiesIdMap(
+                vector<Strategy *> &single_party_possible_nash_strategies,
+                map<Strategy *, int> &possible_nash_alpha_strategies_id_map);
+
         AlphaBetaPruningSolverNaive(Party *first_party, Party *second_party, int seats_num);
+
         virtual void PrintNashEquilibrium();
     };
 
-    class AlphaBetaPruningSolverWithBits:public AlphaBetaPruningSolver{
+    class AlphaBetaPruningSolverWithBits : public AlphaBetaPruningSolver {
     private:
-        unsigned char * first_alpha_possible_nash_bitmap;
-        unsigned char * second_alpha_possible_nash_bitmap;
+        unsigned char *first_alpha_possible_nash_bitmap;
+        unsigned char *second_alpha_possible_nash_bitmap;
+
         int TraverseBetaStrategies(vector<Strategy *> &beta_strategies, Strategy *alpha_strategy,
-                                   unsigned char *&alpha_possible_nash_bitmap,int &max_of_minimals, int row_num);
-        int TraverseUsingPruning(vector<Strategy *> &beta_strategies, vector<Strategy *> &alpha_strategies, unsigned char * & alpha_possible_nash_bitmap);
+                                   unsigned char *&alpha_possible_nash_bitmap, int &max_of_minimals, int row_num);
+
+        int TraverseUsingPruning(vector<Strategy *> &beta_strategies, vector<Strategy *> &alpha_strategies,
+                                 unsigned char *&alpha_possible_nash_bitmap);
+
     public:
         AlphaBetaPruningSolverWithBits(Party *first_party, Party *second_party, int seats_num);
+
         virtual void PrintNashEquilibrium();
+
         ~AlphaBetaPruningSolverWithBits();
     };
 }

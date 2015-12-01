@@ -15,6 +15,6 @@ namespace election {
         vector<CandidateInfo> GetPartyCandidates(string &line);
 
     public:
-        Solver *GetSolver(string in_file_name);
+        SolverInfo GetSolverInfo(string in_file_name);
     };
 }

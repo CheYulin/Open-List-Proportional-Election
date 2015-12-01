@@ -7,23 +7,16 @@
 using namespace election;
 
 //Strategy Related
-Strategy::Strategy(Party *party) : the_other_party_max_pay_off_(-1), party_(party)/*,
+Strategy::Strategy(Party *party) : the_other_party_max_pay_off_(-1), party_(party), fixed_seats_num(0)/*,
                                   is_possible_nash_equilibrium(false)*/ {
 }
 
 string Strategy::ToString() {
-    CompareVoteCandidateListPriorityQueue priority_queue = groups_combination_info_;
-    CompareNameCandidatesListInfoSet compare_candidate_group_set;
     stringstream string_builder;
     string_builder << "{";
-    while (!priority_queue.empty()) {
-        compare_candidate_group_set.insert(priority_queue.top());
-        priority_queue.pop();
-    }
-
-    for (CompareNameCandidatesListInfoSet::iterator compare_name_set_iterator = compare_candidate_group_set.begin();
-         compare_name_set_iterator != compare_candidate_group_set.end(); compare_name_set_iterator++) {
-        const CandidateListInfo *group = (*compare_name_set_iterator);
+    for (vector<const CandidateListInfo *>::iterator candidate_list_info_iterator = candidate_list_info_list_.begin();
+         candidate_list_info_iterator != candidate_list_info_list_.end(); candidate_list_info_iterator++) {
+        const CandidateListInfo *group = (*candidate_list_info_iterator);
         string_builder << "{";
         for (int i = 0; i < group->candidates_->size(); i++) {
             string_builder << party_->getCandidates_info_().at((*(group->candidates_))[i]).candidate_name_;
@@ -34,12 +27,11 @@ string Strategy::ToString() {
         string_builder << "}";
     }
     string_builder << "}";
-
     return string_builder.str();
 }
 
 //Party Related
-Party::Party(vector<CandidateInfo> candidates_info, int seats_num) : sum_votes_(0) {
+Party::Party(vector<CandidateInfo> candidates_info) : sum_votes_(0) {
     int candidate_id = 1;
     for (vector<CandidateInfo>::iterator candidate_info_iterator = candidates_info.begin();
          candidate_info_iterator != candidates_info.end(); candidate_info_iterator++) {
@@ -48,6 +40,7 @@ Party::Party(vector<CandidateInfo> candidates_info, int seats_num) : sum_votes_(
         candidate_id++;
     }
     InitGroupsAlternativesInfo();
+    InitStrategies();
 }
 
 Party::~Party() {
@@ -63,9 +56,9 @@ Party::~Party() {
 
 int Party::GetSumVotes() {
     if (sum_votes_ == 0) {
-        for (map<CandidateId, CandidateInfo>::iterator iter = candidates_info_.begin();
-             iter != candidates_info_.end(); iter++) {
-            sum_votes_ += iter->second.candidate_vote_count_;
+        for (map<CandidateId, CandidateInfo>::iterator my_iterator = candidates_info_.begin();
+             my_iterator != candidates_info_.end(); my_iterator++) {
+            sum_votes_ += my_iterator->second.candidate_vote_count_;
         }
 
     }
@@ -119,9 +112,9 @@ void Party::InitGroupsAlternativesInfo() {
 
 const CandidateListInfo *Party::GetExactGroupPointer(const CandidateListInfo *to_be_found_group) {
     int size = to_be_found_group->candidates_->size();
-    CompareNameCandidatesListInfoSet::iterator iter = groups_info_with_different_size_[size - 1].find(
+    CompareNameCandidatesListInfoSet::iterator my_iterator = groups_info_with_different_size_[size - 1].find(
             to_be_found_group);
-    return *iter;
+    return *my_iterator;
 }
 
 //Party Generate Different Size Partition Related
@@ -145,36 +138,6 @@ void Party::AddNewCandidateIdToMakeSizePlusOnePartition(const Partition &former_
     latter_same_size_partition_i_plus_one->push_back(new_partition);
 }
 
-void Party::TransformPartitionIntoPriorityQueueGetStrategies(DifferentSizePartitions *different_size_partitions) {
-    for (DifferentSizePartitions::iterator my_iterator = different_size_partitions->begin();
-         my_iterator != different_size_partitions->end(); my_iterator++) {
-        SameSizePartitions same_size_partitions = *my_iterator;
-        SameSizeStrategies same_size_strategies;
-        Strategy *strategy;
-
-        for (SameSizePartitions::iterator same_size_iterator = same_size_partitions.begin();
-             same_size_iterator != same_size_partitions.end(); same_size_iterator++) {
-            Partition partition = *same_size_iterator;
-            strategy = new Strategy(this);
-            CandidateListInfo *to_be_find_group;
-            for (Partition::iterator group_iterator = partition.begin();
-                 group_iterator != partition.end(); group_iterator++) {
-                GroupInPartition group_in_partition = *group_iterator;
-                to_be_find_group = new CandidateListInfo();
-                for(GroupInPartition::iterator my_iterator=group_in_partition.begin(); my_iterator!=group_in_partition.end();my_iterator++){
-                    CandidateId candidate_id=*my_iterator;
-                    to_be_find_group->candidates_->push_back(candidate_id);
-                }
-                strategy->groups_combination_info_.push(GetExactGroupPointer(to_be_find_group));
-                delete to_be_find_group;
-            }
-            same_size_strategies.push_back(*strategy);
-            delete strategy;
-        }
-        strategies_with_different_size_.push_back(same_size_strategies);
-    }
-}
-
 void Party::InitStrategies() {
     CandidateId candidate_id = 1;
 
@@ -195,7 +158,7 @@ void Party::InitStrategies() {
 
     int party_size = candidates_info_.size();
     if (party_size == 1) {
-        TransformPartitionIntoPriorityQueueGetStrategies(first_different_size_partitions);
+        TransformPartitionIntoOrderedListStrategies(first_different_size_partitions);
         return;
     }
 
@@ -211,8 +174,9 @@ void Party::InitStrategies() {
             [former_party_partition_possible_size - 1];
             SameSizePartitions *latter_same_size_partitions_i_plus_one = &(*latter_different_size_partitions)
             [former_party_partition_possible_size];
-            for(SameSizePartitions::iterator my_iterator = former_same_size_partitions->begin();my_iterator!=former_same_size_partitions->end();my_iterator++){
-                Partition former_partition =*my_iterator;
+            for (SameSizePartitions::iterator my_iterator = former_same_size_partitions->begin();
+                 my_iterator != former_same_size_partitions->end(); my_iterator++) {
+                Partition former_partition = *my_iterator;
                 AddNewCandidateIdToMakeEqualSizePartition(former_partition, latter_candidate_id,
                                                           latter_same_size_partitions_i);
                 AddNewCandidateIdToMakeSizePlusOnePartition(former_partition, latter_candidate_id,
@@ -224,14 +188,39 @@ void Party::InitStrategies() {
     }
 
     //Put last Result Into Priority Queue
-    TransformPartitionIntoPriorityQueueGetStrategies(latter_different_size_partitions);
+    TransformPartitionIntoOrderedListStrategies(latter_different_size_partitions);
     delete latter_different_size_partitions;
 }
 
+void Party::TransformPartitionIntoOrderedListStrategies(DifferentSizePartitions *different_size_partitions) {
+    for (DifferentSizePartitions::iterator my_iterator = different_size_partitions->begin();
+         my_iterator != different_size_partitions->end(); my_iterator++) {
+        SameSizePartitions same_size_partitions = *my_iterator;
+        SameSizeStrategies same_size_strategies;
+        Strategy *strategy;
+        for (SameSizePartitions::iterator same_size_iterator = same_size_partitions.begin();
+             same_size_iterator != same_size_partitions.end(); same_size_iterator++) {
+            Partition partition = *same_size_iterator;
 
+            strategy = new Strategy(this);
+            CandidateListInfo *to_be_find_group;
+            for (Partition::iterator group_iterator = partition.begin();
+                 group_iterator != partition.end(); group_iterator++) {
+                GroupInPartition group_in_partition = *group_iterator;
+                to_be_find_group = new CandidateListInfo();
+                for (GroupInPartition::iterator my_iterator = group_in_partition.begin();
+                     my_iterator != group_in_partition.end(); my_iterator++) {
+                    CandidateId candidate_id = *my_iterator;
+                    to_be_find_group->candidates_->push_back(candidate_id);
+                }
+                strategy->candidate_list_info_list_.push_back(GetExactGroupPointer(to_be_find_group));
+                delete to_be_find_group;
+            }
 
-
-
-
-
+            same_size_strategies.push_back(*strategy);
+            delete strategy;
+        }
+        strategies_with_different_size_.push_back(same_size_strategies);
+    }
+}
 

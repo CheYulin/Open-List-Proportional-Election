@@ -26,7 +26,7 @@ string CandidateListInfo::GetCandidatesAsString() const {
     return string_builder.str();
 }
 
-CandidateListInfo::CandidateListInfo() : first_round_seat_num_(-1), has_candidates_in_list_(true) {
+CandidateListInfo::CandidateListInfo() : first_round_fixed_seat_num_(-1), has_candidates_in_list_(false) {
     candidates_ = new vector<CandidateId>();
 }
 
@@ -35,7 +35,7 @@ CandidateListInfo::CandidateListInfo(int remaining_vote_num) : group_vote_count_
 }
 
 CandidateListInfo::CandidateListInfo(const CandidateListInfo &candidate_list_info) : group_vote_count_(
-        candidate_list_info.group_vote_count_), first_round_seat_num_(-1), has_candidates_in_list_(true) {
+        candidate_list_info.group_vote_count_), first_round_fixed_seat_num_(-1), has_candidates_in_list_(false),remaining_vote_num(-1){
     candidates_ = new vector<CandidateId>();
 
     for(vector<CandidateId>::iterator candidate_id_iterator = candidate_list_info.candidates_->begin(); candidate_id_iterator != candidate_list_info.candidates_->end();candidate_id_iterator++){

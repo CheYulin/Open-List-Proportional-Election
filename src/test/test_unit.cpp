@@ -72,12 +72,6 @@ void TestUnit::TestPayoffCompute(Party *store_nash_equilibrium_party, Party *fix
         for (Strategy &fixed_strategy : fixed_same_size_strategies) {
             for (SameSizeStrategies &store_same_size_strategies : *store_different_size_strategies) {
                 for (Strategy &stored_strategy: store_same_size_strategies) {
-                    //Two Party Give Partition Less Than Seats Num : Should Be Excluded
-//                    if (fixed_strategy.groups_combination_info_.size() +
-//                        stored_strategy.groups_combination_info_.size() < solver->getSeats_num_()) {
-////                        cout << "Impossible To be Nash Equilibrium With Less Than Seat Num Groups" << endl;
-//                        break;
-//                    }
                     Profile profile = solver->ComputePayOff(&fixed_strategy, &stored_strategy);
                     if (solver->getFirst_party_()->getGroups_info_with_different_size_().size() <= 8 &&
                         solver->getSecond_party_()->getGroups_info_with_different_size_().size() <= 8 ) {
@@ -85,7 +79,7 @@ void TestUnit::TestPayoffCompute(Party *store_nash_equilibrium_party, Party *fix
                         std::ios_base::sync_with_stdio(false);
                         stringstream string_builder;
                         string_builder << stored_strategy.ToString() << "\t" << fixed_strategy.ToString() <<
-                        "  Payoff:" << profile.store_strategy_payoff_ << "," << profile.fixed_strategy_payoff_;
+                        "  Payoff:" << profile.right_strategy_payoff_ << "," << profile.left_strategy_payoff_;
                         cout << string_builder.str() << endl;
                     }
                 }
@@ -127,8 +121,8 @@ void BruteForceSolver::TraverseStrategyFromPerspectiveOfOneParty(
 //                        break;
 //                    }
                     Profile profile = ComputePayOff(&fixed_strategy, &stored_strategy);
-                    if (profile.store_strategy_payoff_ > fixed_strategy.the_other_party_max_pay_off_) {
-                        fixed_strategy.the_other_party_max_pay_off_ = profile.store_strategy_payoff_;
+                    if (profile.left_strategy_payoff_ > fixed_strategy.the_other_party_max_pay_off_) {
+                        fixed_strategy.the_other_party_max_pay_off_ = profile.left_strategy_payoff_;
                     }
                 }
             }
@@ -149,8 +143,8 @@ void BruteForceSolver::TraverseProfileToCheckNashEquilibrium(
 //                        break;
 //                    }
                     Profile profile = ComputePayOff(&fixed_strategy, &stored_strategy);
-                    if (profile.store_strategy_payoff_ == fixed_strategy.the_other_party_max_pay_off_ &&
-                        profile.fixed_strategy_payoff_ == stored_strategy.the_other_party_max_pay_off_) {
+                    if (profile.left_strategy_payoff_ == fixed_strategy.the_other_party_max_pay_off_ &&
+                        profile.right_strategy_payoff_ == stored_strategy.the_other_party_max_pay_off_) {
                         stored_strategy.possible_nash_equilibrium_.push_back(&fixed_strategy);
                     }
                 }

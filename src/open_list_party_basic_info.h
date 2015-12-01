@@ -13,7 +13,7 @@ namespace election{
     typedef int CandidateId;
     typedef int CandidateVoteCount;
     typedef string CandidateName;
-    typedef double StrategyPayOff;
+    typedef double VoteNumber;
 
     struct CandidateInfo {
         CandidateName candidate_name_;
@@ -28,7 +28,7 @@ namespace election{
         vector<CandidateId>* candidates_;
         int group_vote_count_;
 
-        mutable int first_round_seat_num_;
+        mutable int first_round_fixed_seat_num_;
         mutable bool has_candidates_in_list_;
         mutable int remaining_vote_num;
 

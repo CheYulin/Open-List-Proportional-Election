@@ -180,13 +180,28 @@ void TestCOnstructCOmbinationWithSet() {
     }
 }
 
+struct IntCmp{
+    bool operator() (int left, int right){
+        return left > right;
+    }
+};
+
 int main() {
 //    vector<Group> *my_vector = new vector<Group>(10);
 //    delete my_vector;
 //    std::ios_base::sync_with_stdio(false);
 //    cout << setiosflags(ios::fixed) << setprecision(2) << (double) 100 << "~~~~" << 100.324324 << endl;
 //    cout << "haha" << 43243.432432 << endl;
-    cout <<  sizeof(char) << endl;
-    cout << (2 >> 2);
+    vector<int> test_sort_vector;
+    test_sort_vector.push_back(4);
+    test_sort_vector.push_back(3);
+    test_sort_vector.push_back(5);
+    sort(test_sort_vector.begin(),test_sort_vector.end(),greater<int>());
+    for(int i=0;i<test_sort_vector.size();i++)
+    {
+        cout << test_sort_vector[i] << endl;
+    }
+//    cout <<  sizeof(char) << endl;
+//    cout << (2 >> 2);
 }
 

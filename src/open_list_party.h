@@ -13,12 +13,13 @@ namespace election {
     class Party;
 
     struct Strategy {
-        CompareVoteCandidateListPriorityQueue groups_combination_info_;
+        int fixed_seats_num;
+        vector<VoteNumber> remaining_candidate_vote_ordered_list_;
+        vector<const CandidateListInfo*> candidate_list_info_list_;
         vector<Strategy *> possible_nash_equilibrium_;
-        StrategyPayOff the_other_party_max_pay_off_;
+        VoteNumber the_other_party_max_pay_off_;
         Party *party_;
         Strategy(Party *party);
-
         string ToString();
     };
 
@@ -47,18 +48,20 @@ namespace election {
                                                          const CandidateId &candidate_id,
                                                          SameSizePartitions *latter_same_size_partition_i_plus_one);
 
-        void TransformPartitionIntoPriorityQueueGetStrategies(DifferentSizePartitions *different_size_partitions);
+
+
+        void TransformPartitionIntoOrderedListStrategies(DifferentSizePartitions * different_size_partitions);
 
     public:
-        Party(vector<CandidateInfo> candidates_info, int seats_num);
+        Party(vector<CandidateInfo> candidates_info);
 
         ~Party();
 
         int GetSumVotes();
 
-        const CandidateListInfo *GetExactGroupPointer(const CandidateListInfo *to_be_found_group);
-
         void InitStrategies();
+
+        const CandidateListInfo *GetExactGroupPointer(const CandidateListInfo *to_be_found_group);
 
         //Auto Generated
         const vector<CompareNameCandidatesListInfoSet> &getGroups_info_with_different_size_() const {

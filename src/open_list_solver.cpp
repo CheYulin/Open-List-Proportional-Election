@@ -6,14 +6,15 @@
 
 using namespace election;
 
-Profile::Profile() : fixed_strategy_payoff_(0), store_strategy_payoff_(0) {
-
+Profile::Profile() : left_strategy_payoff_(0), right_strategy_payoff_(0) {
 }
 
 //Solver Related
 Solver::Solver(Party *first_party, Party *second_party, int seats_num) :
         first_party_(first_party), second_party_(second_party), seats_num_(seats_num) {
-
+    int sum_votes = first_party_->GetSumVotes() + second_party_->GetSumVotes();
+    quota = sum_votes / seats_num_;
+    InitTwoPartiesStrategies();
 }
 
 Solver::~Solver() {
@@ -21,107 +22,112 @@ Solver::~Solver() {
     delete second_party_;
 }
 
-void Solver::UpdateCertainCandidateListFirstRoundSeatNum(vector<CandidateListInfo *> &garbage_collector,
-                                                         CompareVoteCandidateListPriorityQueue &strategy_priority_queue,
-                                                         StrategyPayOff &strategy_payoff, int &remaining_seats,
-                                                         const int quota) {
-    int stored_quota_info = strategy_priority_queue.top()->first_round_seat_num_;
-    if (stored_quota_info > 100) {
-        cout << "fail to retrive";
-    }
-    const CandidateListInfo *candidate_list_info = strategy_priority_queue.top();
-    //First Time to Query This Candidate List
-    if (stored_quota_info == -1) {
+void Solver::InitStrategyInformation(Strategy *strategy) {
+    //Guarantee Initialization Correctness
+    strategy->fixed_seats_num = 0;
+    strategy->remaining_candidate_vote_ordered_list_.clear();
 
-        int candidate_list_vote = candidate_list_info->group_vote_count_;
-        int candidate_person_num = candidate_list_info->candidates_->size();
-        int seat_num_wining_by_quota = min(candidate_list_vote / quota, candidate_person_num);
+    for (vector<const CandidateListInfo *>::iterator candidate_list_info_iterator = strategy->candidate_list_info_list_.begin();
+         candidate_list_info_iterator != strategy->candidate_list_info_list_.end(); candidate_list_info_iterator++) {
+        const CandidateListInfo *candidate_list_info = *candidate_list_info_iterator;
 
-        //1st Update Winning Seats Num By Quota (Deterministic)
-        candidate_list_info->first_round_seat_num_ = seat_num_wining_by_quota;
-        //2nd Judge If remains Candidates for Next Round
-        int remaining_vote = candidate_list_vote - seat_num_wining_by_quota * quota;
-        if (seat_num_wining_by_quota < candidate_person_num && remaining_vote > 0) {
-            candidate_list_info->has_candidates_in_list_ = true;
-            candidate_list_info->remaining_vote_num = remaining_vote;
+        //If Candidate_List_Info Not Initialized
+        if (candidate_list_info->first_round_fixed_seat_num_ == -1) {
+            int candidate_list_vote = candidate_list_info->group_vote_count_;
+            int candidate_person_num = candidate_list_info->candidates_->size();
+            int seat_num_wining_by_quota = min(candidate_list_vote / quota, candidate_person_num);
+
+            //1st Update Winning Seats Num By Quota (Deterministic)
+            candidate_list_info->first_round_fixed_seat_num_ = seat_num_wining_by_quota;
+            //2nd Judge If remains Candidates for Next Round
+            int remaining_vote = candidate_list_vote - seat_num_wining_by_quota * quota;
+            if (seat_num_wining_by_quota < candidate_person_num && remaining_vote > 0) {
+                candidate_list_info->has_candidates_in_list_ = true;
+                candidate_list_info->remaining_vote_num = remaining_vote;
+            }
+        }
+
+        //First Calculate Fixed Seat Number
+        strategy->fixed_seats_num += candidate_list_info->first_round_fixed_seat_num_;
+        //Second Add To Remains
+        if (candidate_list_info->first_round_fixed_seat_num_ == 0) {
+            strategy->remaining_candidate_vote_ordered_list_.push_back(candidate_list_info->remaining_vote_num);
+        }
+        else if (candidate_list_info->has_candidates_in_list_ == true) {
+            strategy->remaining_candidate_vote_ordered_list_.push_back(candidate_list_info->remaining_vote_num);
         }
     }
 
-    //Then Read Its Value From Past Record
-    strategy_payoff += candidate_list_info->first_round_seat_num_;
-    remaining_seats -= candidate_list_info->first_round_seat_num_;
-    strategy_priority_queue.pop();
-    if (candidate_list_info->has_candidates_in_list_) {
-        CandidateListInfo *new_temp_candidate_list_info_for_next_rounds = new CandidateListInfo(
-                candidate_list_info->remaining_vote_num);
-        strategy_priority_queue.push(new_temp_candidate_list_info_for_next_rounds);
-        garbage_collector.push_back(new_temp_candidate_list_info_for_next_rounds);
-    }
-
+    //Keep Ordered List For Remains
+    sort(strategy->remaining_candidate_vote_ordered_list_.begin(),
+         strategy->remaining_candidate_vote_ordered_list_.end(), greater<VoteNumber>());
 }
 
-Profile election::Solver::ComputePayOff(Strategy *fixed_strategy,
-                                        Strategy *stored_strategy) {
-    int sum_votes = first_party_->GetSumVotes() + second_party_->GetSumVotes();
-    int remaining_seats = seats_num_;
-    int quota = sum_votes / seats_num_;
-    CompareVoteCandidateListPriorityQueue fixed_strategy_priority_queue = fixed_strategy->groups_combination_info_;
-    CompareVoteCandidateListPriorityQueue stored_strategy_priority_queue = stored_strategy->groups_combination_info_;
+void Solver::InitStrategiesForSingleParty(Party *party) {
+    vector<SameSizeStrategies> &different_size_strategies = party->getStrategies_with_different_size_();
+    for (vector<SameSizeStrategies>::iterator same_size_strategies_iterator = different_size_strategies.begin();
+         same_size_strategies_iterator != different_size_strategies.end(); same_size_strategies_iterator++) {
+        SameSizeStrategies &same_size_strategies = *same_size_strategies_iterator;
+        for (SameSizeStrategies::iterator strategy_iterator = same_size_strategies.begin();
+             strategy_iterator != same_size_strategies.end(); strategy_iterator++) {
+            Strategy &strategy = *strategy_iterator;
+            InitStrategyInformation(&strategy);
+        }
+    }
+}
 
+void Solver::InitTwoPartiesStrategies() {
+    InitStrategiesForSingleParty(first_party_);
+    InitStrategiesForSingleParty(second_party_);
+}
+
+Profile election::Solver::ComputePayOff(Strategy *left_strategy,
+                                        Strategy *right_strategy) {
     Profile profile;
-    vector<CandidateListInfo *> garbage_collector;
-
-    //First Round with Quota
-    while (!fixed_strategy_priority_queue.empty() && fixed_strategy_priority_queue.top()->group_vote_count_ >= quota) {
-        UpdateCertainCandidateListFirstRoundSeatNum(garbage_collector, fixed_strategy_priority_queue,
-                                                    profile.fixed_strategy_payoff_, remaining_seats, quota);
-    }
-    while (!stored_strategy_priority_queue.empty() &&
-           stored_strategy_priority_queue.top()->group_vote_count_ >= quota) {
-        UpdateCertainCandidateListFirstRoundSeatNum(garbage_collector, stored_strategy_priority_queue,
-                                                    profile.store_strategy_payoff_, remaining_seats, quota);
-    }
+    //First Round Fixed Seat
+    profile.left_strategy_payoff_ += left_strategy->fixed_seats_num;
+    profile.right_strategy_payoff_ += right_strategy->fixed_seats_num;
 
     //Next Several Rounds
-    while (remaining_seats > 0 && (!fixed_strategy_priority_queue.empty() || !stored_strategy_priority_queue.empty())) {
-        int max_vote_fixed_strategy = fixed_strategy_priority_queue.empty() ? 0
-                                                                            : fixed_strategy_priority_queue.top()->group_vote_count_;
-        int max_vote_stored_strategy = stored_strategy_priority_queue.empty() ? 0
-                                                                              : stored_strategy_priority_queue.top()->group_vote_count_;
-        int max_vote = max(max_vote_fixed_strategy, max_vote_stored_strategy);
+    int remaining_seat_num = seats_num_ - profile.left_strategy_payoff_ - profile.right_strategy_payoff_;
 
-        int fixed_strategy_pop_num = 0;
-        int stored_strategy_pop_num = 0;
-        while (!fixed_strategy_priority_queue.empty() &&
-               fixed_strategy_priority_queue.top()->group_vote_count_ == max_vote) {
-            fixed_strategy_priority_queue.pop();
-            fixed_strategy_pop_num++;
+    int left_remains_index = 0;
+    int right_remains_index = 0;
+    vector<VoteNumber> &left_remains = left_strategy->remaining_candidate_vote_ordered_list_;
+    vector<VoteNumber> &right_remains = right_strategy->remaining_candidate_vote_ordered_list_;
+    while (abs(remaining_seat_num) > DOUBLE_PRECISION) {
+        int max_remaining_vote_left_strategy =
+                left_remains_index >= left_remains.size() ? 0 : left_remains[left_remains_index];
+        int max_remaining_vote_right_strategy =
+                right_remains_index >= right_remains.size() ? 0 : right_remains[right_remains_index];
+
+        int max_remaining_vote = max(max_remaining_vote_left_strategy, max_remaining_vote_right_strategy);
+
+        int left_strategy_pop_num = 0;
+        int right_strategy_pop_num = 0;
+        while (left_remains_index < left_remains.size() &&
+               abs(left_remains[left_remains_index] - max_remaining_vote) < DOUBLE_PRECISION) {
+            left_strategy_pop_num++;
+            left_remains_index++;
         }
-        while (!stored_strategy_priority_queue.empty() &&
-               stored_strategy_priority_queue.top()->group_vote_count_ == max_vote) {
-            stored_strategy_priority_queue.pop();
-            stored_strategy_pop_num++;
+        while (right_remains_index < right_remains.size() &&
+               abs(right_remains[right_remains_index] - max_remaining_vote) < DOUBLE_PRECISION) {
+            right_strategy_pop_num++;
+            right_remains_index++;
         }
-        int sum_pop_num = fixed_strategy_pop_num + stored_strategy_pop_num;
-        if (sum_pop_num > remaining_seats) {
-            profile.fixed_strategy_payoff_ += remaining_seats * fixed_strategy_pop_num / (double) sum_pop_num;
-            profile.store_strategy_payoff_ += remaining_seats * stored_strategy_pop_num / (double) sum_pop_num;
-            remaining_seats = 0;
+
+        int sum_pop_num = left_strategy_pop_num + right_strategy_pop_num;
+        if (sum_pop_num > remaining_seat_num) {
+            profile.left_strategy_payoff_ += remaining_seat_num * left_strategy_pop_num / (double) sum_pop_num;
+            profile.right_strategy_payoff_ += remaining_seat_num * right_strategy_pop_num / (double) sum_pop_num;
+            remaining_seat_num = 0;
         }
         else {
-            profile.fixed_strategy_payoff_ += fixed_strategy_pop_num;
-            profile.store_strategy_payoff_ += stored_strategy_pop_num;
-            remaining_seats -= fixed_strategy_pop_num + stored_strategy_pop_num;
+            profile.left_strategy_payoff_ += left_strategy_pop_num;
+            profile.right_strategy_payoff_ += right_strategy_pop_num;
+            remaining_seat_num -= left_strategy_pop_num + right_strategy_pop_num;
         }
     }
-
-    //Garbage Collection
-    for (vector<CandidateListInfo *>::iterator my_iterator = garbage_collector.begin();
-         my_iterator != garbage_collector.end(); my_iterator++) {
-        CandidateListInfo *candidate_list_info = *my_iterator;
-        delete candidate_list_info;
-    }
-
     return profile;
 }
 
@@ -155,22 +161,22 @@ void Solver::TraverseTheOtherPartyStrategies(vector<SameSizeStrategies> *store_d
 
             //Update Fixed_Strategy_Max_Payoff (Given a certain Stored Strategy)
             //Only When Left Strategy can Shift to This Guy
-            if (profile.fixed_strategy_payoff_ > stored_strategy.the_other_party_max_pay_off_) {
+            if (profile.left_strategy_payoff_ > stored_strategy.the_other_party_max_pay_off_) {
                 //Former Assumed Nash Equilibrium Can Shift to This Guy, Need to Remove Former
                 stored_strategy.possible_nash_equilibrium_.clear();
-                stored_strategy.the_other_party_max_pay_off_ = profile.fixed_strategy_payoff_;
+                stored_strategy.the_other_party_max_pay_off_ = profile.left_strategy_payoff_;
             }
 
             //Update Store_Strategy_Max_Payoff (Given a Fixed Other Party Strategy)
             //Only When Upper Strategy can Shift to This Guy
-            if (profile.store_strategy_payoff_ > fixed_strategy->the_other_party_max_pay_off_) {
+            if (profile.right_strategy_payoff_ > fixed_strategy->the_other_party_max_pay_off_) {
                 //Upper Guys can Shift to This Guy
                 possible_to_be_updated_stored_strategies.clear();
-                fixed_strategy->the_other_party_max_pay_off_ = profile.store_strategy_payoff_;
+                fixed_strategy->the_other_party_max_pay_off_ = profile.right_strategy_payoff_;
             }
 
-            if (profile.fixed_strategy_payoff_ >= stored_strategy.the_other_party_max_pay_off_ &&
-                profile.store_strategy_payoff_ >= fixed_strategy->the_other_party_max_pay_off_) {
+            if (profile.left_strategy_payoff_ >= stored_strategy.the_other_party_max_pay_off_ &&
+                profile.right_strategy_payoff_ >= fixed_strategy->the_other_party_max_pay_off_) {
                 possible_to_be_updated_stored_strategies.push_back(&stored_strategy);
             }
         }
@@ -250,15 +256,17 @@ int AlphaBetaPruningSolverNaive::TraverseUsingPruning(vector<Strategy *> &beta_s
     for (int i = 0; i < alpha_strategies.size(); i++) {
         Strategy *alpha_strategy = alpha_strategies[i];
         int min_value = TraverseBetaStrategies(beta_strategies, alpha_strategy, max_alpha);
-        if (min_value > max_alpha) {
-            for (Strategy *alpha_strategy : possible_nash_alpha_strategies) {
+        if (min_value > max_alpha + DOUBLE_PRECISION) {
+            for (vector<Strategy *>::iterator strategy_iterator = possible_nash_alpha_strategies.begin();
+                 strategy_iterator != possible_nash_alpha_strategies.end(); strategy_iterator++) {
+                Strategy *alpha_strategy = *strategy_iterator;
                 alpha_strategy->possible_nash_equilibrium_.clear();
             }
             possible_nash_alpha_strategies.clear();
             max_alpha = min_value;
         }
 
-        if (min_value >= max_alpha) {
+        if (min_value >= max_alpha - DOUBLE_PRECISION) {
             possible_nash_alpha_strategies.push_back(alpha_strategy);
         }
     }
@@ -272,9 +280,9 @@ int AlphaBetaPruningSolverNaive::TraverseBetaStrategies(vector<Strategy *> &beta
     for (int j = 0; j < beta_strategies.size(); j++) {
         Strategy *beta_strategy = beta_strategies[j];
         Profile profile = ComputePayOff(alpha_strategy, beta_strategy);
-        int alpha_value = profile.fixed_strategy_payoff_;
+        int alpha_value = profile.left_strategy_payoff_;
 
-        if (alpha_value < min_of_beta_values) {
+        if (alpha_value < min_of_beta_values - DOUBLE_PRECISION) {
             possible_to_be_nash_equilibrium_beta_strategies.clear();
             min_of_beta_values = alpha_value;
             if (min_of_beta_values < max_of_minimals) {
@@ -283,7 +291,7 @@ int AlphaBetaPruningSolverNaive::TraverseBetaStrategies(vector<Strategy *> &beta
             }
         }
 
-        if (alpha_value <= min_of_beta_values) {
+        if (alpha_value <= min_of_beta_values + DOUBLE_PRECISION) {
             possible_to_be_nash_equilibrium_beta_strategies.push_back(beta_strategy);
         }
     }
@@ -458,7 +466,8 @@ int AlphaBetaPruningSolverWithBits::TraverseBetaStrategies(vector<Strategy *> &b
     for (int col_num = 0; col_num < beta_strategies.size(); col_num++) {
         Strategy *beta_strategy = beta_strategies[col_num];
         Profile profile = ComputePayOff(alpha_strategy, beta_strategy);
-        int alpha_value = profile.fixed_strategy_payoff_;
+
+        int alpha_value = profile.left_strategy_payoff_;
 
         if (alpha_value < min_of_beta_values) {
             possible_to_be_nash_equilibrium_beta_strategies.clear();
@@ -492,3 +501,6 @@ AlphaBetaPruningSolverWithBits::~AlphaBetaPruningSolverWithBits() {
     delete first_alpha_possible_nash_bitmap;
     delete second_alpha_possible_nash_bitmap;
 }
+
+
+

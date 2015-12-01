@@ -18,7 +18,9 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
 
 #define BYTE_SIZE 8
+#define DOUBLE_PRECISION 0.00001
 using namespace std;
 

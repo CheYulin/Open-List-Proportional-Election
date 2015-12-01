@@ -29,32 +29,30 @@ vector<CandidateInfo> IOProcessor::GetPartyCandidates(string &line) {
     return candidates_info;
 }
 
-Solver *IOProcessor::GetSolver(string in_file_name) {
+SolverInfo IOProcessor::GetSolverInfo(string in_file_name) {
     ifstream infile(in_file_name.c_str(), ios::in);
     string line;
     int line_num = 0;
-    int seats_num = 0;
-    Party *first_party;
-    Party *second_party;
 
+    SolverInfo solver_info;
     while (!infile.eof()) {
         line_num++;
         getline(infile, line);
         if (line_num == 1) {
-            seats_num = atoi(line.c_str());
+            solver_info.seat_num = atoi(line.c_str());
         }
         else if (line_num == 2) {
             vector<CandidateInfo> candidates_info = GetPartyCandidates(line);
-            first_party = new Party(candidates_info, seats_num);
+            solver_info.first_party_ = new Party(candidates_info);
         }
         else if (line_num == 3) {
             vector<CandidateInfo> candidates_info = GetPartyCandidates(line);
-            second_party = new Party(candidates_info, seats_num);
+            solver_info.second_party_ = new Party(candidates_info);
         }
         else {
             break;
         }
     }
-    Solver *my_solver = new Solver(first_party, second_party, seats_num);
-    return my_solver;
+
+    return solver_info;
 }
