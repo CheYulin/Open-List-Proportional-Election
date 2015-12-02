@@ -452,7 +452,7 @@ SeatNumber AlphaBetaPruningSolverWithBits::TraverseUsingPruning(vector<Strategy 
         SeatNumber min_value = TraverseBetaStrategies(beta_strategies, alpha_strategy, alpha_possible_nash_bitmap,
                                                       max_alpha,
                                                       row_num);
-        if (min_value > max_alpha) {
+        if (min_value > max_alpha + DOUBLE_PRECISION) {
 
             max_alpha = min_value;
         }
