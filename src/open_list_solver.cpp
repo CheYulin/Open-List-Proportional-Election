@@ -506,7 +506,6 @@ SeatNumber AlphaBetaPruningSolverWithBits::TraverseUsingPruning(vector<Strategy 
                                                                 vector<Strategy *> &alpha_strategies,
                                                                 unsigned char *&alpha_possible_nash_bitmap) {
     // max of minimals
-    vector<int> possible_nash_alphas;
     SeatNumber max_alpha = -1;
     for (int row_num = 0; row_num < alpha_strategies.size(); row_num++) {
         Strategy *alpha_strategy = alpha_strategies[row_num];
@@ -514,48 +513,7 @@ SeatNumber AlphaBetaPruningSolverWithBits::TraverseUsingPruning(vector<Strategy 
                                                       max_alpha,
                                                       row_num);
         if (min_value > max_alpha + DOUBLE_PRECISION) {
-
             max_alpha = min_value;
-            for (vector<int>::iterator strategy_index_iterator = possible_nash_alphas.begin();
-                 strategy_index_iterator != possible_nash_alphas.end(); strategy_index_iterator++) {
-                size_t row_num = *strategy_index_iterator;
-                size_t start_bit_index = row_num * beta_strategies.size();
-                size_t end_bit_index = (row_num + 1) * beta_strategies.size() - 1;
-                size_t start_char_index = start_bit_index / BYTE_SIZE;
-                size_t end_char_index = end_bit_index / BYTE_SIZE;
-                if (start_char_index == end_char_index) {
-                    for (int j = start_bit_index; j <= end_bit_index; j++) {
-                        unsigned char tmp_char = 0x01;
-                        int index_in_eight_bits = BYTE_SIZE - 1 - (j % BYTE_SIZE);
-                        tmp_char = tmp_char << index_in_eight_bits;
-                        tmp_char = ~tmp_char;
-                        first_alpha_possible_nash_bitmap_[start_char_index] &= tmp_char;
-                    }
-                }
-                else {
-                    int start_order_in_eight_bits = start_bit_index % BYTE_SIZE;
-                    unsigned char first_char;
-                    int shift_bits_num = BYTE_SIZE - start_order_in_eight_bits;
-                    first_char = (first_alpha_possible_nash_bitmap_[start_char_index] >>
-                                  shift_bits_num) << shift_bits_num;
-
-                    int end_order_in_eight_bits = end_bit_index % BYTE_SIZE;
-                    unsigned char end_char = 0x00;
-                    shift_bits_num = end_bit_index + 1 ;
-                    end_char = (first_alpha_possible_nash_bitmap_[end_char_index] << shift_bits_num) >> shift_bits_num;
-
-                    int clear_char_num = end_char_index - start_char_index + 1;
-                    memset((first_alpha_possible_nash_bitmap_+start_char_index),0,clear_char_num);
-
-                    first_alpha_possible_nash_bitmap_[start_char_index] |= first_char;
-                    first_alpha_possible_nash_bitmap_[end_char_index] |= end_char;
-                }
-            }
-            possible_nash_alphas.clear();
-        }
-
-        if (min_value > max_alpha + DOUBLE_PRECISION || abs(min_value - max_alpha) < DOUBLE_PRECISION) {
-            possible_nash_alphas.push_back(row_num);
         }
     }
     return max_alpha;
@@ -588,6 +546,10 @@ SeatNumber AlphaBetaPruningSolverWithBits::TraverseBetaStrategies(vector<Strateg
     }
 
     size_t beta_strategies_size = beta_strategies.size();
+
+    if(getSeats_num_() >1 && min_of_beta_values > max_of_minimals + DOUBLE_PRECISION){
+        memset(alpha_possible_nash_bitmap,0,beta_strategies_size*row_num);
+    }
 
     for (vector<int>::iterator strategy_iterator = possible_to_be_nash_equilibrium_beta_strategies.begin();
          strategy_iterator != possible_to_be_nash_equilibrium_beta_strategies.end(); strategy_iterator++) {
