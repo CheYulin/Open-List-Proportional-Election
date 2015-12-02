@@ -217,7 +217,13 @@ void Solver::PrintNashEquilibrium() {
 
 //AlphaBetaPruningSolver Related
 AlphaBetaPruningSolver::AlphaBetaPruningSolver(Party *first_party, Party *second_party, int seats_num) : Solver(
-        first_party, second_party, seats_num) {
+        first_party, second_party, seats_num), has_swap_party_order_(false) {
+    if (getFirst_party_()->GetSumVotes() > getSecond_party_()->GetSumVotes()) {
+        Party *temp = getFirst_party_();
+        setFirst_party_(getSecond_party_());
+        setSecond_party_(temp);
+        has_swap_party_order_ = true;
+    }
     InitBothPartyStrategiesIntoVector();
 }
 
@@ -395,15 +401,61 @@ AlphaBetaPruningSolverWithBits::AlphaBetaPruningSolverWithBits(Party *first_part
     size_t char_size = all_profile_size / BYTE_SIZE + 1;
     first_alpha_possible_nash_bitmap_ = new unsigned char[char_size];
     memset(first_alpha_possible_nash_bitmap_, 0, char_size);
+
 }
 
 void AlphaBetaPruningSolverWithBits::PrintNashEquilibrium() {
     //second_party_strategies_ as Row
     std::ios_base::sync_with_stdio(false);
     cout << setiosflags(ios::fixed) << setprecision(2);
+
+
     second_party_payoff_ = TraverseUsingPruning(first_party_strategies_, second_party_strategies_, true);
     first_party_payoff_ = getSeats_num_() - second_party_payoff_;
-    TraverseUsingPruning(second_party_strategies_, first_party_strategies_, false);
+    size_t first_party_size = first_party_strategies_.size();
+    size_t second_party_size = second_party_strategies_.size();
+    size_t all_profile_size = first_party_size * second_party_size;
+    unsigned char *&second_party_as_row_profiles = first_alpha_possible_nash_bitmap_;
+
+    if (getSeats_num_() == 1) {
+        for (size_t second_party_bit_index = 0; second_party_bit_index < all_profile_size; second_party_bit_index++) {
+            size_t second_party_as_row_char_index = second_party_bit_index / BYTE_SIZE;
+            size_t second_party_as_row_index_in_eight_bits = second_party_bit_index % BYTE_SIZE;
+            unsigned char tmp_char = 0x01;
+            unsigned char second_party_with_one_bit = tmp_char &
+                                                      (second_party_as_row_profiles[second_party_as_row_char_index] >>
+                                                       (BYTE_SIZE - 1 - second_party_as_row_index_in_eight_bits));
+            size_t second_party_row_num = second_party_bit_index / first_party_size;
+            size_t second_party_col_num = second_party_bit_index % first_party_size;
+            if (second_party_with_one_bit == tmp_char) {
+                //Print
+                Strategy *first_party_strategy = first_party_strategies_[second_party_col_num];
+                Strategy *second_party_strategy = second_party_strategies_[second_party_row_num];
+                stringstream string_builder;
+                if (has_swap_party_order_ == false) {
+                    string_builder << "({" << first_party_strategy->ToString() << "," <<
+                    second_party_strategy->ToString() << "})" <<
+                    " ";
+                    string_builder << "payoff " << "(" << first_party_payoff_ << "," <<
+                    second_party_payoff_ << ")";
+                    cout << string_builder.str() << endl;
+                }
+                else {
+                    string_builder << "({" << second_party_strategy->ToString() << "," <<
+                    first_party_strategy->ToString() << "})" <<
+                    " ";
+                    string_builder << "payoff " << "(" << second_party_payoff_ << "," <<
+                    first_party_payoff_ << ")";
+                    cout << string_builder.str() << endl;
+                }
+            }
+        }
+    }
+    else if (getSeats_num_() > 1) {
+        SeatNumber first_party_alpha_max = TraverseUsingPruning(second_party_strategies_, first_party_strategies_,
+                                                                false);
+
+    }
 }
 
 SeatNumber AlphaBetaPruningSolverWithBits::TraverseUsingPruning(vector<Strategy *> &beta_strategies,
@@ -411,8 +463,8 @@ SeatNumber AlphaBetaPruningSolverWithBits::TraverseUsingPruning(vector<Strategy 
                                                                 bool is_first_in) {
     // max of minimals
     SeatNumber max_alpha = -1;
-    if(!is_first_in)
-        max_alpha = getSeats_num_() - second_party_payoff_;
+    if (!is_first_in)
+        max_alpha = first_party_payoff_;
     for (int row_num = 0; row_num < alpha_strategies.size(); row_num++) {
         Strategy *alpha_strategy = alpha_strategies[row_num];
         SeatNumber min_value = TraverseBetaStrategies(beta_strategies, alpha_strategy,
@@ -450,39 +502,60 @@ SeatNumber AlphaBetaPruningSolverWithBits::TraverseBetaStrategies(vector<Strateg
         }
     }
 
-    size_t beta_strategies_size = beta_strategies.size();
+    size_t first_party_size = first_party_strategies_.size();
+
+    if (is_first_in && min_of_beta_values > max_of_minimals + DOUBLE_PRECISION) {
+        memset(first_alpha_possible_nash_bitmap_, 0, first_party_size * row_num);
+    }
 
     for (vector<int>::iterator strategy_iterator = possible_to_be_nash_equilibrium_beta_strategies.begin();
          strategy_iterator != possible_to_be_nash_equilibrium_beta_strategies.end(); strategy_iterator++) {
         if (is_first_in) {
-            if(min_of_beta_values > max_of_minimals){
-                memset(first_alpha_possible_nash_bitmap_,0,row_num*beta_strategies_size);
+            if (min_of_beta_values > max_of_minimals) {
+                memset(first_alpha_possible_nash_bitmap_, 0, row_num * first_party_size);
             }
             size_t col_num = *strategy_iterator;
-            size_t bit_index = row_num * beta_strategies_size + col_num;
+            size_t bit_index = row_num * first_party_size + col_num;
             size_t char_index = bit_index / BYTE_SIZE;
             int index_in_eight_bits_from_high_to_low = bit_index % BYTE_SIZE;
             unsigned char tmp_char = 0x01;
             tmp_char = tmp_char << (BYTE_SIZE - 1 - index_in_eight_bits_from_high_to_low);
             first_alpha_possible_nash_bitmap_[char_index] |= tmp_char;
         }
+
         else if (!is_first_in) {
             size_t col_num = *strategy_iterator;
-            size_t bit_index = col_num * beta_strategies_size + row_num;
+            size_t bit_index = col_num * first_party_size + row_num;
             size_t char_index = bit_index / BYTE_SIZE;
             int index_in_eight_bits_from_high_to_low = bit_index % BYTE_SIZE;
             unsigned char tmp_char = 0x01;
-            if ((first_alpha_possible_nash_bitmap_[char_index] >> (BYTE_SIZE - 1 - index_in_eight_bits_from_high_to_low)) &
+            if ((first_alpha_possible_nash_bitmap_[char_index] >>
+                 (BYTE_SIZE - 1 - index_in_eight_bits_from_high_to_low)) &
                 tmp_char == tmp_char) {
-                Strategy *first_party_strategy = first_party_strategies_[col_num];
-                Strategy *second_party_strategy = second_party_strategies_[col_num];
-                stringstream string_builder;
-                string_builder << "({" << first_party_strategy->ToString() << "," <<
-                second_party_strategy->ToString() << "})" <<
-                "\t";
-                string_builder << "payoff    " << "(" << first_party_payoff_ << ",  " <<
-                second_party_payoff_ << ")";
-                cout << string_builder.str() << endl;
+
+                if (has_swap_party_order_ == false) {
+                    Strategy *first_party_strategy = first_party_strategies_[row_num];
+                    Strategy *second_party_strategy = second_party_strategies_[col_num];
+                    stringstream string_builder;
+                    string_builder << "({" << first_party_strategy->ToString() << "," <<
+                    second_party_strategy->ToString() << "})" <<
+                    " ";
+                    string_builder << "payoff " << "(" << first_party_payoff_ << "," <<
+                    second_party_payoff_ << ")";
+                    cout << string_builder.str() << endl;
+                }
+                else {
+                    Strategy *first_party_strategy = first_party_strategies_[row_num];
+                    Strategy *second_party_strategy = second_party_strategies_[col_num];
+                    stringstream string_builder;
+                    string_builder << "({" << second_party_strategy->ToString() << "," <<
+                    first_party_strategy->ToString() << "})" <<
+                    " ";
+                    string_builder << "payoff " << "(" << second_party_payoff_ << "," <<
+                    first_party_payoff_ << ")";
+                    cout << string_builder.str() << endl;
+                }
+
             }
         }
     }

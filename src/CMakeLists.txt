@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.3)
 project(src)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++98 -O3")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "/home/cheyulin/Gitrepos/Open-List-Proportional-Representation/release")
 #add_executable(mytest test/deprecated/test_compute_payoff.cpp)
 #add_executable(mytest2 test/deprecated/test_init_alternatives.cpp)

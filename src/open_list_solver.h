@@ -61,6 +61,15 @@ namespace election {
             return second_party_;
         }
 
+
+        void setFirst_party_(Party *first_party_) {
+            Solver::first_party_ = first_party_;
+        }
+
+        void setSecond_party_(Party *second_party_) {
+            Solver::second_party_ = second_party_;
+        }
+
         int getSeats_num_() const {
             return seats_num_;
         }
@@ -70,7 +79,7 @@ namespace election {
     protected:
         vector<Strategy *> first_party_strategies_;
         vector<Strategy *> second_party_strategies_;
-
+        bool has_swap_party_order_;
         void InitSinglePartyStrategiesIntoVector(vector<SameSizeStrategies> *party_strategies,
                                                  vector<Strategy *> &party_strategies_storage);
 
@@ -113,6 +122,7 @@ namespace election {
         SeatNumber first_party_payoff_;
 
         SeatNumber second_party_payoff_;
+
 
         SeatNumber TraverseBetaStrategies(vector<Strategy *> &beta_strategies, Strategy *alpha_strategy,
                                     SeatNumber &max_of_minimals, int row_num, bool is_first_in);
