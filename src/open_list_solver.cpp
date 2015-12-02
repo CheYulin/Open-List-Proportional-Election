@@ -395,6 +395,8 @@ AlphaBetaPruningSolverWithBits::AlphaBetaPruningSolverWithBits(Party *first_part
     size_t char_size = all_profile_size / BYTE_SIZE + 1;
     first_alpha_possible_nash_bitmap = new unsigned char[char_size];
     second_alpha_possible_nash_bitmap = new unsigned char[char_size];
+    memset(first_alpha_possible_nash_bitmap,0,char_size);
+    memset(second_alpha_possible_nash_bitmap,0,char_size);
 }
 
 void AlphaBetaPruningSolverWithBits::PrintNashEquilibrium() {
