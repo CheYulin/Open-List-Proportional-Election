@@ -1,11 +1,6 @@
 #Open List Proportional Representation
 1. Codes for testing are put in /src/test
-   1.1 test_unit.h test_unit.cpp test_main 
-    1)test for seat number, group initialization for two parties, 
-    2)test for strategy initialization for two praties
-    3)test for profile/payoff traverse in all combination of two parties strategies. 
-    4)test of brute force solver to check the correctness of implemented solver.
-   1.2 depracated/* includes deprecated testing files
+  Some of them are deprecated.
 
 2. Main functional codes are put in src/ 
 	2.1 open_list_includes.h 
@@ -18,8 +13,14 @@
 		includes input file handling and solver creation
 	2.5 main.cpp is entrance of the program
 
-Notes:
- 1)This naive algorithm traverses strategy combination of two parties once, i.e. and use O(strategy number of party) memory space. 
- 2)Using brute force needs three traverses, first two to get informaiton of max payoff, and third to check nash equilibrium.
- 3)Both naive and brute force all exclude/cut those combination which could not reach the given seats.
+3. Build Information
+    3.1 use Cmake
+    	in src directory, you can find CMakeLists.txt
+    3.2 use gnu make
+    	in src directory, you can find Makefile
+    I have tested with gcc 4.8, gnu make 3.8, cmake 3.3.
 
+Notes:
+ 1) This project provides three types of solvers for the open list proportional representation. One is navive one which travserses whole searching space once. Second is alpha-beta pruning solver in brach master or dev-alphabeta-singlebitmap, which traverses two rounds, but prunes impossible searching guys. Third is also alpha-beta pruning solver in branch dev-alphabeta-twobitmaps. The difference between second and third lays in storage for nash equilibriums and searching strategies. The second begin to output after fisrt round, during the checking period in second round while the third begins to output after geting the whole result space.
+
+ 2) This project can deal with 9 by 9 case easily. And for 10 by 10 cases, it can begin to output within five minutes on lab machine.
