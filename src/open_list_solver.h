@@ -61,6 +61,15 @@ namespace election {
             return second_party_;
         }
 
+
+        void setFirst_party_(Party *first_party_) {
+            Solver::first_party_ = first_party_;
+        }
+
+        void setSecond_party_(Party *second_party_) {
+            Solver::second_party_ = second_party_;
+        }
+
         int getSeats_num_() const {
             return seats_num_;
         }
@@ -70,7 +79,7 @@ namespace election {
     protected:
         vector<Strategy *> first_party_strategies_;
         vector<Strategy *> second_party_strategies_;
-
+        bool has_swap_party_order_;
         void InitSinglePartyStrategiesIntoVector(vector<SameSizeStrategies> *party_strategies,
                                                  vector<Strategy *> &party_strategies_storage);
 
@@ -108,9 +117,9 @@ namespace election {
 
     class AlphaBetaPruningSolverWithBits : public AlphaBetaPruningSolver {
     private:
-        unsigned char *first_alpha_possible_nash_bitmap;
-        unsigned char *second_alpha_possible_nash_bitmap;
-
+        unsigned char *first_alpha_possible_nash_bitmap_;
+        unsigned char *second_alpha_possible_nash_bitmap_;
+//        size_t char_size_;
         SeatNumber TraverseBetaStrategies(vector<Strategy *> &beta_strategies, Strategy *alpha_strategy,
                                    unsigned char *&alpha_possible_nash_bitmap, SeatNumber &max_of_minimals, int row_num);
 
