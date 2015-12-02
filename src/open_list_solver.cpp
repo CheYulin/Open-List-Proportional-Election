@@ -409,8 +409,11 @@ void AlphaBetaPruningSolverWithBits::PrintNashEquilibrium() {
     std::ios_base::sync_with_stdio(false);
     cout << setiosflags(ios::fixed) << setprecision(2);
 
-
+//    size_t start_time = time(NULL);
     second_party_payoff_ = TraverseUsingPruning(first_party_strategies_, second_party_strategies_, true);
+//    size_t end_time = time(NULL);
+//    cout << "First Round:" << (end_time - start_time) << endl;
+
     first_party_payoff_ = getSeats_num_() - second_party_payoff_;
     size_t first_party_size = first_party_strategies_.size();
     size_t second_party_size = second_party_strategies_.size();
@@ -455,6 +458,7 @@ void AlphaBetaPruningSolverWithBits::PrintNashEquilibrium() {
         TraverseUsingPruning(second_party_strategies_, first_party_strategies_, false);
 
     }
+//    cout << "Finished:" << time(NULL) - start_time << endl;
 }
 
 SeatNumber AlphaBetaPruningSolverWithBits::TraverseUsingPruning(vector<Strategy *> &beta_strategies,
