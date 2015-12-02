@@ -408,6 +408,8 @@ AlphaBetaPruningSolverWithBits::AlphaBetaPruningSolverWithBits(Party *first_part
 
 void AlphaBetaPruningSolverWithBits::PrintNashEquilibrium() {
     //second_party_strategies_ as Row
+    std::ios_base::sync_with_stdio(false);
+    cout << setiosflags(ios::fixed) << setprecision(2);
     SeatNumber second_party_alpha_max = TraverseUsingPruning(first_party_strategies_, second_party_strategies_,
                                                              first_alpha_possible_nash_bitmap_);
     size_t first_party_size = first_party_strategies_.size();
