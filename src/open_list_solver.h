@@ -85,10 +85,10 @@ namespace election {
 
     class AlphaBetaPruningSolverNaive : public AlphaBetaPruningSolver {
     private :
-        vector<Strategy *> possible_to_be_nash_equilibrium_first_alpha_strategies;
-        vector<Strategy *> possible_to_be_nash_equilibrium_second_alpha_strategies;
-        map<Strategy *, int> first_party_possible_nash_alpha_strategies_id_map;
-        map<Strategy *, int> second_party_possible_nash_alpha_strategies_id_map;
+        vector<Strategy *> possible_to_be_nash_equilibrium_first_alpha_strategies_;
+        vector<Strategy *> possible_to_be_nash_equilibrium_second_alpha_strategies_;
+        map<Strategy *, int> first_party_possible_nash_alpha_strategies_id_map_;
+        map<Strategy *, int> second_party_possible_nash_alpha_strategies_id_map_;
 
         SeatNumber TraverseBetaStrategies(vector<Strategy *> &beta_strategies, Strategy *alpha_strategy,
                                    SeatNumber &max_of_minimals);
@@ -108,14 +108,17 @@ namespace election {
 
     class AlphaBetaPruningSolverWithBits : public AlphaBetaPruningSolver {
     private:
-        unsigned char *first_alpha_possible_nash_bitmap;
-        unsigned char *second_alpha_possible_nash_bitmap;
+        unsigned char *first_alpha_possible_nash_bitmap_;
+
+        SeatNumber first_party_payoff_;
+
+        SeatNumber second_party_payoff_;
 
         SeatNumber TraverseBetaStrategies(vector<Strategy *> &beta_strategies, Strategy *alpha_strategy,
-                                   unsigned char *&alpha_possible_nash_bitmap, SeatNumber &max_of_minimals, int row_num);
+                                    SeatNumber &max_of_minimals, int row_num, bool is_first_in);
 
         SeatNumber TraverseUsingPruning(vector<Strategy *> &beta_strategies, vector<Strategy *> &alpha_strategies,
-                                 unsigned char *&alpha_possible_nash_bitmap);
+                                  bool is_first_in);
 
     public:
         AlphaBetaPruningSolverWithBits(Party *first_party, Party *second_party, int seats_num);
