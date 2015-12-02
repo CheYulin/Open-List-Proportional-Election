@@ -452,8 +452,7 @@ void AlphaBetaPruningSolverWithBits::PrintNashEquilibrium() {
         }
     }
     else if (getSeats_num_() > 1) {
-        SeatNumber first_party_alpha_max = TraverseUsingPruning(second_party_strategies_, first_party_strategies_,
-                                                                false);
+        TraverseUsingPruning(second_party_strategies_, first_party_strategies_, false);
 
     }
 }
@@ -511,9 +510,6 @@ SeatNumber AlphaBetaPruningSolverWithBits::TraverseBetaStrategies(vector<Strateg
     for (vector<int>::iterator strategy_iterator = possible_to_be_nash_equilibrium_beta_strategies.begin();
          strategy_iterator != possible_to_be_nash_equilibrium_beta_strategies.end(); strategy_iterator++) {
         if (is_first_in) {
-            if (min_of_beta_values > max_of_minimals) {
-                memset(first_alpha_possible_nash_bitmap_, 0, row_num * first_party_size);
-            }
             size_t col_num = *strategy_iterator;
             size_t bit_index = row_num * first_party_size + col_num;
             size_t char_index = bit_index / BYTE_SIZE;
