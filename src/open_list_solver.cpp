@@ -399,6 +399,8 @@ AlphaBetaPruningSolverWithBits::AlphaBetaPruningSolverWithBits(Party *first_part
 
 void AlphaBetaPruningSolverWithBits::PrintNashEquilibrium() {
     //second_party_strategies_ as Row
+    std::ios_base::sync_with_stdio(false);
+    cout << setiosflags(ios::fixed) << setprecision(2);
     second_party_payoff_ = TraverseUsingPruning(first_party_strategies_, second_party_strategies_, true);
     first_party_payoff_ = getSeats_num_() - second_party_payoff_;
     TraverseUsingPruning(second_party_strategies_, first_party_strategies_, false);
@@ -407,62 +409,16 @@ void AlphaBetaPruningSolverWithBits::PrintNashEquilibrium() {
 SeatNumber AlphaBetaPruningSolverWithBits::TraverseUsingPruning(vector<Strategy *> &beta_strategies,
                                                                 vector<Strategy *> &alpha_strategies,
                                                                 bool is_first_in) {
-    vector<int> possible_nash_alphas;
     // max of minimals
     SeatNumber max_alpha = -1;
     if(!is_first_in)
-        max_alpha = second_party_payoff_;
+        max_alpha = getSeats_num_() - second_party_payoff_;
     for (int row_num = 0; row_num < alpha_strategies.size(); row_num++) {
         Strategy *alpha_strategy = alpha_strategies[row_num];
         SeatNumber min_value = TraverseBetaStrategies(beta_strategies, alpha_strategy,
                                                       max_alpha, row_num, is_first_in);
         if (min_value > max_alpha + DOUBLE_PRECISION) {
             max_alpha = min_value;
-            //Clear
-            if (is_first_in) {
-                for (vector<int>::iterator strategy_index_iterator = possible_nash_alphas.begin();
-                     strategy_index_iterator != possible_nash_alphas.end(); strategy_index_iterator++) {
-                    size_t row_num = *strategy_index_iterator;
-                    size_t start_bit_index = row_num * beta_strategies.size();
-                    size_t end_bit_index = (row_num + 1) * beta_strategies.size() - 1;
-                    size_t start_char_index = start_bit_index / BYTE_SIZE;
-                    size_t end_char_index = end_bit_index / BYTE_SIZE;
-                    if (start_char_index == end_char_index) {
-                        for (int j = start_bit_index; j <= end_bit_index; j++) {
-                            unsigned char tmp_char = 0x01;
-                            int index_in_eight_bits = BYTE_SIZE - 1 - (j % BYTE_SIZE);
-                            tmp_char = tmp_char << index_in_eight_bits;
-                            tmp_char = ~tmp_char;
-                            first_alpha_possible_nash_bitmap_[start_char_index] &= tmp_char;
-                        }
-                    }
-                    else {
-                        int start_order_in_eight_bits = start_bit_index % BYTE_SIZE;
-                        unsigned char first_char;
-                        int shift_bits_num = BYTE_SIZE - start_order_in_eight_bits;
-                        first_char = (first_alpha_possible_nash_bitmap_[start_char_index] >>
-                                      shift_bits_num) << shift_bits_num;
-
-                        int end_order_in_eight_bits = end_bit_index % BYTE_SIZE;
-                        unsigned char end_char = 0x00;
-                        shift_bits_num = end_bit_index + 1 ;
-                            end_char = (first_alpha_possible_nash_bitmap_[end_char_index] << shift_bits_num) >> shift_bits_num;
-
-                        int clear_char_num = end_char_index - start_char_index + 1;
-                        memset((first_alpha_possible_nash_bitmap_+start_char_index),0,clear_char_num);
-
-                        first_alpha_possible_nash_bitmap_[start_char_index] |= first_char;
-                        first_alpha_possible_nash_bitmap_[end_char_index] |= end_char;
-                    }
-                }
-                possible_nash_alphas.clear();
-            }
-        }
-
-        if (is_first_in) {
-            if (min_value > max_alpha + DOUBLE_PRECISION || abs(min_value - max_alpha) < DOUBLE_PRECISION) {
-                possible_nash_alphas.push_back(row_num);
-            }
         }
     }
     return max_alpha;
@@ -499,6 +455,9 @@ SeatNumber AlphaBetaPruningSolverWithBits::TraverseBetaStrategies(vector<Strateg
     for (vector<int>::iterator strategy_iterator = possible_to_be_nash_equilibrium_beta_strategies.begin();
          strategy_iterator != possible_to_be_nash_equilibrium_beta_strategies.end(); strategy_iterator++) {
         if (is_first_in) {
+            if(min_of_beta_values > max_of_minimals){
+                memset(first_alpha_possible_nash_bitmap_,0,row_num*beta_strategies_size);
+            }
             size_t col_num = *strategy_iterator;
             size_t bit_index = row_num * beta_strategies_size + col_num;
             size_t char_index = bit_index / BYTE_SIZE;
@@ -508,16 +467,13 @@ SeatNumber AlphaBetaPruningSolverWithBits::TraverseBetaStrategies(vector<Strateg
             first_alpha_possible_nash_bitmap_[char_index] |= tmp_char;
         }
         else if (!is_first_in) {
-
             size_t col_num = *strategy_iterator;
             size_t bit_index = col_num * beta_strategies_size + row_num;
             size_t char_index = bit_index / BYTE_SIZE;
             int index_in_eight_bits_from_high_to_low = bit_index % BYTE_SIZE;
             unsigned char tmp_char = 0x01;
-            if ((first_alpha_possible_nash_bitmap_[char_index] >> (BYTE_SIZE - 1 -
-                                                                   index_in_eight_bits_from_high_to_low)) &
+            if ((first_alpha_possible_nash_bitmap_[char_index] >> (BYTE_SIZE - 1 - index_in_eight_bits_from_high_to_low)) &
                 tmp_char == tmp_char) {
-
                 Strategy *first_party_strategy = first_party_strategies_[col_num];
                 Strategy *second_party_strategy = second_party_strategies_[col_num];
                 stringstream string_builder;
