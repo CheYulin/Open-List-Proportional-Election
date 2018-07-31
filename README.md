@@ -1,5 +1,6 @@
-#Open List Proportional Representation
-##Implementations and Build:
+# Open List Proportional Representation
+## Implementations and Build:
+
 1. Codes for testing are put in **/src/test**  
   Some of them are deprecated.  
 
@@ -17,7 +18,7 @@
     	in src directory, you can find Makefile
 	I have tested with **gcc 4.8, gnu make 3.8, cmake 3.3**.  
 
-##Notes:
+## Notes:
 1. This project provides three types of solvers for the open list proportional representation.  
 	- One is **navive one**, which travserses whole searching space once.  
 	- Second is **alpha-beta pruning solver in brach master**, which traverses two rounds, but prunes impossible searching guys. 
